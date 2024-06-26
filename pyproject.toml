@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pysol"
+version = "0.1.0"
+authors = [
+  { name="Mohanson", email="mohanson@outlook.com" },
+]
+description = "Python SDK for SOL"
+readme = "README.md"
+license = { file = "LICENSE" }
+dependencies = []
+
+[project.urls]
+homepage = "https://github.com/mohanson/pysol"
