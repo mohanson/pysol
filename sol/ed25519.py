@@ -81,15 +81,14 @@ class Fr(Fp):
         return f'Fr(0x{self.x:064x})'
 
 
-A = Fq(486662)
-B = Fq(1)
+A = -Fq(1)
+D = -Fq(121665) / Fq(121666)
 
 
 class Pt:
 
     def __init__(self, x: Fq, y: Fq):
-        if x != Fq(0) or y != Fq(0):
-            assert B * y ** 2 == x ** 3 + A * x ** 2 + x
+        assert y * y - x * x == Fq(1) + D * x * x * y * y
         self.x = x
         self.y = y
 
@@ -103,23 +102,15 @@ class Pt:
         ])
 
     def __add__(self, data: Self) -> Self:
-        # https://cdn.intechopen.com/pdfs/68653.pdf
-        # Intan Muchtadi-Alamsyah and Yanuar Bhakti Wira Tama, Implementation of Elliptic Curve25519 in Cryptography
-        # 2 Elliptic curve Montgomery form
-        if self.x == Fq(0) and self.y == Fq(0):
-            return data
-        if data.x == Fq(0) and data.y == Fq(0):
-            return self
-        if self.x == data.x and self.y == -data.y:
-            return I
+        # https://datatracker.ietf.org/doc/html/rfc8032#ref-CURVE25519
+        # Points on the curve form a group under addition, (x3, y3) = (x1, y1) + (x2, y2), with the formulas
+        #           x1 * y2 + x2 * y1                y1 * y2 - a * x1 * x2
+        # x3 = --------------------------,   y3 = ---------------------------
+        #       1 + d * x1 * x2 * y1 * y2          1 - d * x1 * x2 * y1 * y2
         x1, x2 = self.x, data.x
         y1, y2 = self.y, data.y
-        if self.y == data.y:
-            s = (x1 * x1 + x1 * x1 + x1 * x1 + Fq(2) * A * x1 + Fq(1)) / (y1 + y1)
-        else:
-            s = (y2 - y1) / (x2 - x1)
-        x3 = s * s - x1 - x2 - A
-        y3 = s * (x1 - x3) - y1
+        x3 = (x1 * y2 + x2 * y1) / (Fq(1) + D * x1 * x2 * y1 * y2)
+        y3 = (y1 * y2 - A * x1 * x2) / (Fq(1) - D * x1 * x2 * y1 * y2)
         return Pt(x3, y3)
 
     def __sub__(self, data: Self) -> Self:
@@ -146,24 +137,24 @@ class Pt:
         return self
 
     def __neg__(self) -> Self:
-        return Pt(self.x, -self.y)
+        return Pt(-self.x, self.y)
 
 
 # Identity element
 I = Pt(
     Fq(0),
-    Fq(0),
+    Fq(1),
 )
 # Generator point
 G = Pt(
-    Fq(0x0000000000000000000000000000000000000000000000000000000000000009),
-    Fq(0x20ae19a1b8a086b4e01edd2c7748d14c923d4d7e6d7c61b229e9c5a27eced3d9),
+    Fq(0x216936d3cd6e53fec0a4e231fdd6dc5c692cc7609525a7b2c9562d608f25d51a),
+    Fq(0x6666666666666666666666666666666666666666666666666666666666666658),
 )
 
 if __name__ == '__main__':
     p = G * Fr(42)
     q = G * Fr(24)
-    r = Pt(p.x, -p.y)
+    r = Pt(-p.x, p.y)
     assert p + q == G * Fr(66)
     assert p + p == G * Fr(84)
     assert p - q == G * Fr(18)
