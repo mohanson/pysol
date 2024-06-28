@@ -34,8 +34,6 @@ def pt_decode(pt: bytearray) -> sol.ed25519.Pt:
     # always non-zero mod p.
     y = sol.ed25519.Fq(yint)
     x_x = (y * y - sol.ed25519.Fq(1)) / (sol.ed25519.D * y * y + sol.ed25519.Fq(1))
-    # if x_x == sol.ed25519.Fq(0) and not sign:
-    #     return sol.ed25519.Pt(sol.ed25519.Fq(0), y)
     # To compute the square root of (u/v), the first step is to compute the candidate root x = (u/v)^((p+3)/8).
     x = x_x ** ((sol.ed25519.P + 3) // 8)
     # Again, there are three cases:
@@ -55,6 +53,8 @@ def pt_decode(pt: bytearray) -> sol.ed25519.Pt:
 
 
 def sign(prikey: bytearray, m: bytearray) -> bytearray:
+    # The inputs to the signing procedure is the private key, a 32-octet string, and a message M of arbitrary size.
+    # See https://datatracker.ietf.org/doc/html/rfc8032#section-5.1.6
     assert len(prikey) == 32
     h = hash(prikey)
     a = int.from_bytes(h[:32], 'little')
