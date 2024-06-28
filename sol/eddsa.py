@@ -52,6 +52,16 @@ def pt_decode(pt: bytearray) -> sol.ed25519.Pt:
     return sol.ed25519.Pt(x, y)
 
 
+def pubkey(prikey: bytearray) -> bytearray:
+    assert len(prikey) == 32
+    h = hash(prikey)
+    a = int.from_bytes(h[:32], 'little')
+    a &= (1 << 254) - 8
+    a |= (1 << 254)
+    a = sol.ed25519.Fr(a)
+    return pt_encode(sol.ed25519.G * a)
+
+
 def sign(prikey: bytearray, m: bytearray) -> bytearray:
     # The inputs to the signing procedure is the private key, a 32-octet string, and a message M of arbitrary size.
     # See https://datatracker.ietf.org/doc/html/rfc8032#section-5.1.6
@@ -69,3 +79,18 @@ def sign(prikey: bytearray, m: bytearray) -> bytearray:
     h = sol.ed25519.Fr(int.from_bytes(hash(Rs + A + m), 'little'))
     s = r + h * a
     return Rs + bytearray(s.x.to_bytes(32, 'little'))
+
+
+def verify(pubkey: bytearray, m: bytearray, sig: bytearray) -> bool:
+    # Verify a signature on a message using public key.
+    # See https://datatracker.ietf.org/doc/html/rfc8032#section-5.1.7
+    assert len(pubkey) == 32
+    assert len(sig) == 64
+    A = pt_decode(pubkey)
+    Rs = sig[:32]
+    R = pt_decode(Rs)
+    s = sol.ed25519.Fr(int.from_bytes(sig[32:], 'little'))
+    h = sol.ed25519.Fr(int.from_bytes(hash(Rs + pubkey + m), 'little'))
+    sB = sol.ed25519.G * s
+    hA = A * h
+    return sB == R + hA
