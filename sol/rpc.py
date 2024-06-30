@@ -15,7 +15,6 @@ def call(method: str, params: typing.List) -> typing.Any:
     }).json()
     if 'error' in r:
         raise Exception(r['error'])
-    print(r['result'])
     return r['result']
 
 

@@ -27,6 +27,20 @@ $ python example/addr.py --prikey 0x1
 # 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt
 ```
 
+**example/balance.py**
+
+Get the balance by an address.
+
+```sh
+$ python example/balance.py --net develop --addr 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt
+
+# 10000
+
+$ python example/balance.py --net mainnet --addr 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt
+
+# 0.002030181
+```
+
 ## Test
 
 ```sh
