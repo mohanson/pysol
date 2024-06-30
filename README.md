@@ -34,11 +34,12 @@ $ wget https://github.com/solana-labs/solana/releases/download/v1.18.15/solana-r
 $ tar -jxvf solana-release-x86_64-unknown-linux-gnu.tar.bz2
 $ cd solana-release-x86_64-unknown-linux-gnu.tar.bz2
 
+# Run test validator
+$ solana-test-validator -l /tmp/test-ledger
 $ solana config set --url localhost
 # Create default wallet
 $ solana-keygen new
-# Run test validator
-$ solana-test-validator -l /tmp/test-ledger
+$ solana transfer --allow-unfunded-recipient 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt 10000
 
 $ pytest -v
 ```

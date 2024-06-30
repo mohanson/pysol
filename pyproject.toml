@@ -11,7 +11,7 @@ authors = [
 description = "Python SDK for SOL"
 readme = "README.md"
 license = { file = "LICENSE" }
-dependencies = []
+dependencies = ["requests"]
 
 [project.urls]
 homepage = "https://github.com/mohanson/pysol"
