@@ -11,19 +11,19 @@ class PriKey:
         self.p = p
 
     def __repr__(self) -> str:
-        return self.base58_encode()
+        return self.base58()
 
     def __eq__(self, other) -> bool:
         return self.p == other.p
 
-    def base58_encode(self) -> str:
+    def base58(self) -> str:
         return sol.base58.encode(self.p)
 
     @staticmethod
     def base58_decode(data: str) -> Self:
         return PriKey(sol.base58.decode(data))
 
-    def hex_encode(self) -> str:
+    def hex(self) -> str:
         return self.p.hex()
 
     @staticmethod
@@ -40,19 +40,19 @@ class PubKey:
         self.p = p
 
     def __repr__(self) -> str:
-        return self.base58_encode()
+        return self.base58()
 
     def __eq__(self, other) -> bool:
         return self.p == other.p
 
-    def base58_encode(self) -> str:
+    def base58(self) -> str:
         return sol.base58.encode(self.p)
 
     @staticmethod
     def base58_decode(data: str) -> Self:
         return PriKey(sol.base58.decode(data))
 
-    def hex_encode(self) -> str:
+    def hex(self) -> str:
         return self.p.hex()
 
     @staticmethod
@@ -106,15 +106,28 @@ class Instruction:
         self.accounts = accounts
         self.data = data
 
-    def ser_encode(self) -> bytearray:
+    def serialize(self) -> bytearray:
         r = bytearray()
         r.append(self.program_id_index)
-        r.append(len(self.accounts))
+        r.extend(compact_u16_encode(len(self.accounts)))
         for e in self.accounts:
             r.append(e)
-        r.append(len(self.data))
+        r.extend(compact_u16_encode(len(self.data)))
         r.extend(self.data)
         return r
+
+    @staticmethod
+    def serialize_decode(data: bytearray) -> Self:
+        return Instruction.serialize_decode_reader(io.BytesIO(data))
+
+    @staticmethod
+    def serialize_decode_reader(reader: io.BytesIO) -> Self:
+        i = Instruction(0, [], bytearray())
+        i.program_id_index = int(reader.read(1)[0])
+        for _ in range(compact_u16_decode_reader(reader)):
+            i.accounts.append(int(reader.read(1)[0]))
+        i.data = bytearray(reader.read(compact_u16_decode_reader(reader)))
+        return i
 
 
 class MessageHeader:
@@ -128,12 +141,21 @@ class MessageHeader:
         self.num_readonly_signed_accounts = num_readonly_signed_accounts
         self.num_readonly_unsigned_accounts = num_readonly_unsigned_accounts
 
-    def ser_encode(self) -> bytearray:
+    def serialize(self) -> bytearray:
         return bytearray([
             self.num_required_signatures,
             self.num_readonly_signed_accounts,
             self.num_readonly_unsigned_accounts,
         ])
+
+    @staticmethod
+    def serialize_decode(data: bytearray) -> Self:
+        assert len(data) == 3
+        return MessageHeader(data[0], data[1], data[2])
+
+    @staticmethod
+    def serialize_decode_reader(reader: io.BytesIO) -> Self:
+        return MessageHeader.serialize_decode(bytearray(reader.read(3)))
 
 
 class Message:
@@ -149,17 +171,31 @@ class Message:
         self.recent_blockhash = recent_blockhash
         self.instructions = instructions
 
-    def ser_encode(self) -> bytearray:
+    def serialize(self) -> bytearray:
         r = bytearray()
-        r.extend(self.header.ser_encode())
-        r.append(len(self.account_keys))
+        r.extend(self.header.serialize())
+        r.extend(compact_u16_encode(len(self.account_keys)))
         for e in self.account_keys:
             r.extend(e.p)
         r.extend(self.recent_blockhash)
-        r.append(len(self.instructions))
+        r.extend(compact_u16_encode(len(self.instructions)))
         for e in self.instructions:
-            r.extend(e.ser_encode())
+            r.extend(e.serialize())
         return r
+
+    @staticmethod
+    def serialize_decode(data: bytearray) -> Self:
+        return Message.serialize_decode_reader(io.BytesIO(data))
+
+    @staticmethod
+    def serialize_decode_reader(reader: io.BytesIO) -> Self:
+        m = Message(MessageHeader.serialize_decode_reader(reader), [], bytearray(), [])
+        for _ in range(compact_u16_decode_reader(reader)):
+            m.account_keys.append(bytearray(reader.read(32)))
+        m.recent_blockhash = bytearray(reader.read(32))
+        for _ in range(compact_u16_decode_reader(reader)):
+            m. instructions.append(Instruction.serialize_decode_reader(reader))
+        return m
 
 
 class Transaction:
@@ -167,10 +203,21 @@ class Transaction:
         self.signatures = signatures
         self.message = message
 
-    def ser_encode(self) -> bytearray:
+    def serialize(self) -> bytearray:
         r = bytearray()
-        r.append(len(self.signatures))
+        r.extend(compact_u16_encode(len(self.signatures)))
         for e in self.signatures:
             r.extend(e)
-        r.extend(self.message.ser_encode())
+        r.extend(self.message.serialize())
         return r
+
+    @staticmethod
+    def serialize_decode(data: bytearray) -> Self:
+        return Transaction.serialize_decode_reader(io.BytesIO(data))
+
+    @staticmethod
+    def serialize_decode_reader(reader: io.BytesIO) -> Self:
+        s = []
+        for _ in range(compact_u16_decode_reader(reader)):
+            s.append(bytearray(reader.read(32)))
+        return Transaction(s, Message.serialize_decode_reader(reader))
