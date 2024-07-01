@@ -1,4 +1,5 @@
 import io
+import json
 import sol.base58
 import sol.eddsa
 import typing
@@ -101,10 +102,25 @@ def compact_u16_decode_reader(reader: typing.BinaryIO) -> int:
 
 
 class Instruction:
+    # A compact encoding of an instruction.
     def __init__(self, program_id_index: int, accounts: typing.List[int], data: bytearray) -> None:
         self.program_id_index = program_id_index
         self.accounts = accounts
         self.data = data
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def json(self) -> typing.Dict:
+        return {
+            'programIdIndex': self.program_id_index,
+            'accounts': self.accounts,
+            'data': sol.base58.encode(self.data)
+        }
+
+    @staticmethod
+    def json_decode(data: typing.Dict) -> Self:
+        return Instruction(data['programIdIndex'], data['accounts'], sol.base58.decode(data['data']))
 
     def serialize(self) -> bytearray:
         r = bytearray()
@@ -141,6 +157,24 @@ class MessageHeader:
         self.num_readonly_signed_accounts = num_readonly_signed_accounts
         self.num_readonly_unsigned_accounts = num_readonly_unsigned_accounts
 
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def json(self) -> typing.Dict:
+        return {
+            'numRequiredSignatures': self.num_required_signatures,
+            'numReadonlySignedAccounts': self.num_readonly_signed_accounts,
+            'numReadonlyUnsignedAccounts': self.num_readonly_unsigned_accounts,
+        }
+
+    @staticmethod
+    def json_decode(data: str) -> Self:
+        return MessageHeader(
+            data['numRequiredSignatures'],
+            data['numReadonlySignedAccounts'],
+            data['numReadonlyUnsignedAccounts'],
+        )
+
     def serialize(self) -> bytearray:
         return bytearray([
             self.num_required_signatures,
@@ -170,6 +204,26 @@ class Message:
         self.account_keys = account_keys
         self.recent_blockhash = recent_blockhash
         self.instructions = instructions
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def json(self) -> typing.Dict:
+        return {
+            'header': self.header.json(),
+            'accountKeys': [e.base58() for e in self.account_keys],
+            'recentBlockhash': sol.base58.encode(self.recent_blockhash),
+            'instructions': [e.json() for e in self.instructions],
+        }
+
+    @staticmethod
+    def json_decode(data: str) -> Self:
+        return Message(
+            MessageHeader.json_decode(data['header']),
+            [PubKey.base58_decode(e) for e in data['accountKeys']],
+            sol.base58.decode(data['recentBlockhash']),
+            [Instruction.json_decode(e) for e in data['instructions']]
+        )
 
     def serialize(self) -> bytearray:
         r = bytearray()
@@ -202,6 +256,19 @@ class Transaction:
     def __init__(self, signatures: typing.List[bytearray], message: Message) -> None:
         self.signatures = signatures
         self.message = message
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def json(self) -> typing.Dict:
+        return {
+            'signatures': [sol.base58.encode(e) for e in self.signatures],
+            'message': self.message.json()
+        }
+
+    @staticmethod
+    def json_decode(data: typing.Dict) -> Self:
+        return Transaction([sol.base58.decode(e) for e in data['signatures']], Message.json_decode(data['message']))
 
     def serialize(self) -> bytearray:
         r = bytearray()
