@@ -61,6 +61,9 @@ class PubKey:
 
 
 def compact_u16_encode(n: int) -> bytearray:
+    # Same as u16, but serialized with 1 to 3 bytes. If the value is above 0x7f, the top bit is set and the remaining
+    # value is stored in the next bytes. Each byte follows the same pattern until the 3rd byte. The 3rd byte, if
+    # needed, uses all 8 bits to store the last byte of the original value.
     assert n >= 0
     assert n <= 0xffff
     if n <= 0x7f:
