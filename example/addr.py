@@ -9,5 +9,5 @@ args = parser.parse_args()
 
 prikey = sol.core.PriKey(bytearray(int(args.prikey, 0).to_bytes(32)))
 pubkey = prikey.pubkey()
-addr = pubkey.base58()
+addr = pubkey.base58_encode()
 print(addr)

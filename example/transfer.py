@@ -32,9 +32,9 @@ instruction_data = bytearray()
 instruction_data.extend(bytearray(int(2).to_bytes(4, 'little')))
 instruction_data.extend(bytearray(int(args.value * sol.denomination.sol).to_bytes(8, 'little')))
 tx.message.instructions.append(sol.core.Instruction(2, [0, 1], instruction_data))
-tx.signatures.append(sol.eddsa.sign(user_prikey.p, tx.message.serialize()))
+tx.signatures.append(sol.eddsa.sign(user_prikey.p, tx.message.ser_encode()))
 
-hash = sol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {
+hash = sol.rpc.send_transaction(base64.b64encode(tx.ser_encode()).decode(), {
     'encoding': 'base64'
 })
 print(hash)

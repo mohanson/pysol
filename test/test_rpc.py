@@ -2,12 +2,12 @@ import sol
 
 
 def test_get_account_info():
-    addr = sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58()
+    addr = sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58_encode()
     sol.rpc.get_account_info(addr)
 
 
 def test_get_balance():
-    addr = sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58()
+    addr = sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58_encode()
     sol.rpc.get_balance(addr)
 
 
@@ -125,14 +125,14 @@ def test_get_minimum_balance_for_rent_exemption():
 
 def test_get_multiple_accounts():
     r = sol.rpc.get_multiple_accounts([
-        sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58(),
-        sol.core.PriKey(bytearray(int(2).to_bytes(32))).pubkey().base58(),
+        sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58_encode(),
+        sol.core.PriKey(bytearray(int(2).to_bytes(32))).pubkey().base58_encode(),
     ])
     assert len(r) == 2
 
 
 def test_get_program_accounts():
-    addr = sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58()
+    addr = sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58_encode()
     sol.rpc.get_program_accounts(addr)
 
 
@@ -149,7 +149,7 @@ def test_get_signature_statuses():
 
 
 def test_get_signatures_for_address():
-    addr = sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58()
+    addr = sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58_encode()
     sol.rpc.get_signatures_for_address(addr)
 
 
@@ -224,7 +224,7 @@ def test_minimum_ledger_slot():
 
 
 def test_request_airdrop():
-    addr = sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58()
+    addr = sol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58_encode()
     sol.rpc.request_airdrop(addr, 1)
 
 
