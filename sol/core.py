@@ -191,7 +191,7 @@ class Message:
     def serialize_decode_reader(reader: io.BytesIO) -> Self:
         m = Message(MessageHeader.serialize_decode_reader(reader), [], bytearray(), [])
         for _ in range(compact_u16_decode_reader(reader)):
-            m.account_keys.append(bytearray(reader.read(32)))
+            m.account_keys.append(PubKey(bytearray(reader.read(32))))
         m.recent_blockhash = bytearray(reader.read(32))
         for _ in range(compact_u16_decode_reader(reader)):
             m. instructions.append(Instruction.serialize_decode_reader(reader))
@@ -219,5 +219,5 @@ class Transaction:
     def serialize_decode_reader(reader: io.BytesIO) -> Self:
         s = []
         for _ in range(compact_u16_decode_reader(reader)):
-            s.append(bytearray(reader.read(32)))
+            s.append(bytearray(reader.read(64)))
         return Transaction(s, Message.serialize_decode_reader(reader))
