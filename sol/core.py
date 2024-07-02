@@ -34,6 +34,9 @@ class PriKey:
     def pubkey(self):
         return PubKey(sol.eddsa.pubkey(self.p))
 
+    def sign(self, data: bytearray) -> bytearray:
+        return sol.eddsa.sign(self.p, data)
+
 
 class PubKey:
     def __init__(self, p: bytearray) -> None:
@@ -66,8 +69,13 @@ class SystemProgram:
     pubkey = PubKey(bytearray(32))
 
     @staticmethod
-    def create():
-        pass
+    def create(value: int, space: int, program_id: PubKey):
+        r = bytearray()
+        r.extend(bytearray(int(0).to_bytes(4, 'little')))
+        r.extend(bytearray(int(value).to_bytes(8, 'little')))
+        r.extend(bytearray(int(space).to_bytes(8, 'little')))
+        r.extend(program_id.p)
+        return r
 
     @staticmethod
     def assign():
