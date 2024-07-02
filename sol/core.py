@@ -61,6 +61,66 @@ class PubKey:
         return PriKey(bytearray.fromhex(data))
 
 
+class SystemProgram:
+
+    pubkey = PubKey(bytearray(32))
+
+    @staticmethod
+    def create():
+        pass
+
+    @staticmethod
+    def assign():
+        pass
+
+    @staticmethod
+    def transfer(value: int) -> bytearray:
+        r = bytearray()
+        r.extend(bytearray(int(2).to_bytes(4, 'little')))
+        r.extend(bytearray(int(value).to_bytes(8, 'little')))
+        return r
+
+    @staticmethod
+    def create_with_seed():
+        pass
+
+    @staticmethod
+    def advance_nonce_account():
+        pass
+
+    @staticmethod
+    def withdraw_nonce_account():
+        pass
+
+    @staticmethod
+    def initialize_nonce_account():
+        pass
+
+    @staticmethod
+    def authorize_nonce_account():
+        pass
+
+    @staticmethod
+    def allocate():
+        pass
+
+    @staticmethod
+    def allocate_with_seed():
+        pass
+
+    @staticmethod
+    def assign_with_seed():
+        pass
+
+    @staticmethod
+    def transfer_with_seed():
+        pass
+
+    @staticmethod
+    def upgrade_nonce_account():
+        pass
+
+
 def compact_u16_encode(n: int) -> bytearray:
     # Same as u16, but serialized with 1 to 3 bytes. If the value is above 0x7f, the top bit is set and the remaining
     # value is stored in the next bytes. Each byte follows the same pattern until the 3rd byte. The 3rd byte, if

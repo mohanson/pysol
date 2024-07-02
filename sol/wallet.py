@@ -24,12 +24,9 @@ class Wallet:
         tx = sol.core.Transaction([], sol.core.Message(sol.core.MessageHeader(1, 0, 1), [], bytearray(), []))
         tx.message.account_keys.append(self.pubkey)
         tx.message.account_keys.append(pubkey)
-        tx.message.account_keys.append(sol.core.PubKey(bytearray(32)))
+        tx.message.account_keys.append(sol.core.SystemProgram.pubkey)
         tx.message.recent_blockhash = sol.base58.decode(sol.rpc.get_latest_blockhash()['blockhash'])
-        instruction_data = bytearray()
-        instruction_data.extend(bytearray(int(2).to_bytes(4, 'little')))
-        instruction_data.extend(bytearray(int(value).to_bytes(8, 'little')))
-        tx.message.instructions.append(sol.core.Instruction(2, [0, 1], instruction_data))
+        tx.message.instructions.append(sol.core.Instruction(2, [0, 1], sol.core.SystemProgram.transfer(value)))
         tx.signatures.append(sol.eddsa.sign(self.prikey.p, tx.message.serialize()))
         hash = sol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {
             'encoding': 'base64'
