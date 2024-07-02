@@ -1,6 +1,8 @@
-import sol.config
+import itertools
 import random
 import requests
+import sol.config
+import time
 import typing
 
 # Doc: https://solana.com/docs/rpc/http
@@ -16,6 +18,14 @@ def call(method: str, params: typing.List) -> typing.Any:
     if 'error' in r:
         raise Exception(r['error'])
     return r['result']
+
+
+def wait(signature: str):
+    for _ in itertools.repeat(0):
+        time.sleep(1)
+        r = get_signature_statuses([signature])
+        if r[0]['confirmationStatus'] == 'finalized':
+            break
 
 
 def get_account_info(pubkey: str, conf: typing.Dict | None = None) -> typing.Dict:
@@ -108,7 +118,7 @@ def get_largest_accounts(conf: typing.Dict | None = None) -> typing.List[typing.
 
 
 def get_latest_blockhash(conf: typing.Dict | None = None) -> typing.Dict:
-    return call('getLatestBlockhash', [conf])
+    return call('getLatestBlockhash', [conf])['value']
 
 
 def get_leader_schedule(epoch: int | None = None, conf: typing.Dict | None = None) -> typing.Dict:
@@ -144,7 +154,7 @@ def get_recent_prioritization_fees(pubkey_list: typing.List[str] | None = None) 
 
 
 def get_signature_statuses(sigs: typing.List[str], conf: typing.Dict | None = None) -> typing.Dict:
-    return call('getSignatureStatuses', [sigs, conf])
+    return call('getSignatureStatuses', [sigs, conf])['value']
 
 
 def get_signatures_for_address(pubkey: str, conf: typing.Dict | None = None) -> typing.List[typing.Dict]:

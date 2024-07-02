@@ -41,6 +41,16 @@ $ python example/balance.py --net mainnet --addr 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXP
 # 0.002030181
 ```
 
+**example/transfer.py**
+
+Transfer sol to other.
+
+```sh
+$ python example/transfer.py --prikey 0x1 --to 8pM1DN3RiT8vbom5u1sNryaNT1nyL8CTTW3b5PwWXRBH --value 0.05
+
+# 4GhcAygac8krnrJgF2tCSNxRyWsquCZ26NPM6o9oP3bPQFkAzi22CGn9RszBXzqPErujVxwzenTHoTMHuiZm98Wu
+```
+
 ## Test
 
 ```sh
@@ -51,9 +61,7 @@ $ cd solana-release-x86_64-unknown-linux-gnu.tar.bz2
 # Run test validator
 $ solana-test-validator -l /tmp/test-ledger
 $ solana config set --url localhost
-# Create default wallet
-$ solana-keygen new
-$ solana transfer --allow-unfunded-recipient 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt 10000
+$ solana airdrop 99 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt
 
 $ pytest -v
 ```
