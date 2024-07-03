@@ -43,7 +43,7 @@ def pt_decode(pt: bytearray) -> sol.ed25519.Pt:
     if x*x != x_x:
         x = x * sol.ed25519.Fq(2) ** ((sol.ed25519.P - 1) // 4)
         assert x*x == x_x
-    # Finally, use the x_0 bit to select the right square root. If x = 0, and x_0 = 1, decoding fails.  Otherwise, if
+    # Finally, use the x_0 bit to select the right square root. If x = 0, and x_0 = 1, decoding fails. Otherwise, if
     # x_0 != x mod 2, set x <-- p - x.  Return the decoded point (x,y).
     if x == sol.ed25519.Fq(0):
         assert not sign

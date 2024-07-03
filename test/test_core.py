@@ -37,6 +37,14 @@ def test_compact_u16_random():
         assert sol.core.compact_u16_decode(sol.core.compact_u16_encode(n)) == n
 
 
+def test_pda():
+    pubkey = sol.core.PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
+    seed = bytearray(int(0).to_bytes(32))
+    assert sol.core.pda(pubkey, seed).base58() == '5ReXsszTZPmCZuH7wHPoEkxqRq3Bb1xWWcim13zDH6LX'
+    seed = bytearray(int(1).to_bytes(32))
+    assert sol.core.pda(pubkey, seed).base58() == 'Eb6T9mLCxAE1FxAXbCGpB5TN3yMbgo9rsP8A8HWGwuXc'
+
+
 def test_transaction():
     data = bytearray([
         0x01, 0xc5, 0x2e, 0xfc, 0x4e, 0x7b, 0x7f, 0x9c, 0x10, 0x45, 0xd5, 0xc8, 0x2a, 0x87, 0xea, 0x69,

@@ -41,6 +41,22 @@ $ python example/balance.py --net mainnet --addr 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXP
 # 0.002030181
 ```
 
+**example/program.py**
+
+Publish a hello solana program, then call it to show "Hello, Solana!".
+
+```sh
+$ python example/program.py --action deploy --prikey 0x1
+# Program ID: 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG
+
+$ python example/program.py --action call --prikey 0x1 --addr 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG
+# Program 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG invoke [1]
+# Program log: Hello, Solana!
+# Program log: Our program's Program ID: 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG
+# Program 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG consumed 11850 of 200000 compute units
+# Program 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG success
+```
+
 **example/transfer.py**
 
 Transfer sol to other.

@@ -1,3 +1,4 @@
+import hashlib
 import io
 import json
 import sol.base58
@@ -64,12 +65,74 @@ class PubKey:
         return PriKey(bytearray.fromhex(data))
 
 
-class SystemProgram:
+class ProgramClock:
+
+    pubKey = PubKey.base58_decode('SysvarC1ock11111111111111111111111111111111')
+
+
+class ProgramLoaderUpgradeable:
+
+    pubkey = PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
+
+    size_uninitialized = 4  # Size of a serialized program account.
+    size_buffer_metadata = 37  # Size of a buffer account's serialized metadata.
+    size_program_data_metadata = 45  # Size of a programdata account's serialized metadata.
+    size_program = 36  # Size of a serialized program account.
+
+    @staticmethod
+    def initialize_buffer() -> bytearray:
+        r = bytearray()
+        r.extend(bytearray([0x00, 0x00, 0x00, 0x00]))
+        return r
+
+    @staticmethod
+    def write(offset: int, data: bytearray) -> bytearray:
+        r = bytearray()
+        r.extend(bytearray([0x01, 0x00, 0x00, 0x00]))
+        r.extend(bytearray(offset.to_bytes(4, 'little')))
+        r.extend(bytearray(len(data).to_bytes(8, 'little')))
+        r.extend(data)  # Bytes
+        return r
+
+    @staticmethod
+    def deploy_with_max_data_len(size: int):
+        r = bytearray()
+        r.extend(bytearray([0x02, 0x00, 0x00, 0x00]))
+        r.extend(bytearray(size.to_bytes(8, 'little')))
+        return r
+
+    @staticmethod
+    def upgrade():
+        pass
+
+    @staticmethod
+    def set_authority():
+        pass
+
+    @staticmethod
+    def close():
+        pass
+
+    @staticmethod
+    def extend_program():
+        pass
+
+    @staticmethod
+    def set_authority_checked():
+        pass
+
+
+class ProgramRent:
+
+    pubkey = PubKey.base58_decode('SysvarRent111111111111111111111111111111111')
+
+
+class ProgramSystem:
 
     pubkey = PubKey(bytearray(32))
 
     @staticmethod
-    def create(value: int, space: int, program_id: PubKey):
+    def create(value: int, space: int, program_id: PubKey) -> bytearray:
         r = bytearray()
         r.extend(bytearray(int(0).to_bytes(4, 'little')))
         r.extend(bytearray(int(value).to_bytes(8, 'little')))
@@ -167,6 +230,24 @@ def compact_u16_decode_reader(reader: typing.BinaryIO) -> int:
     c = reader.read(1)[0]
     n += c << 14
     return n
+
+
+def pda(pubkey: PubKey, seed: bytearray) -> PubKey:
+    # Program Derived Address (PDA)
+    # See: https://solana.com/docs/core/pda
+    data = bytearray()
+    data.extend(seed)
+    data.append(0xff)
+    data.extend(pubkey.p)
+    data.extend(bytearray('ProgramDerivedAddress'.encode()))
+    for i in range(255, 0, -1):
+        data[len(seed)] = i
+        hash = bytearray(hashlib.sha256(data).digest())
+        try:
+            sol.eddsa.pt_decode(hash)
+        except AssertionError:
+            return PubKey(hash)
+    raise Exception
 
 
 class Instruction:

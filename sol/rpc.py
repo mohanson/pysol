@@ -20,12 +20,19 @@ def call(method: str, params: typing.List) -> typing.Any:
     return r['result']
 
 
-def wait(signature: str):
+def hang(signature: typing.List[str]):
+    a = signature.copy()
     for _ in itertools.repeat(0):
         time.sleep(1)
-        r = get_signature_statuses([signature])
-        if r[0]['confirmationStatus'] == 'finalized':
+        r = get_signature_statuses(a)
+        s = [e['confirmationStatus'] != 'finalized' for e in r]
+        a = list(itertools.compress(a, s))
+        if len(a) == 0:
             break
+
+
+def wait(signature: str):
+    return hang([signature])
 
 
 def get_account_info(pubkey: str, conf: typing.Dict | None = None) -> typing.Dict:
