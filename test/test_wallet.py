@@ -1,4 +1,11 @@
+import pathlib
 import sol
+
+
+def test_program_deploy_update():
+    user = sol.wallet.Wallet(sol.core.PriKey(bytearray(int(1).to_bytes(32))))
+    pubkey = user.program_deploy(bytearray(pathlib.Path('res/hello_solana_program.so').read_bytes()))
+    user.program_update(bytearray(pathlib.Path('res/hello_update_program.so').read_bytes()), pubkey)
 
 
 def test_transfer():

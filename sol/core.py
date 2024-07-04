@@ -103,7 +103,9 @@ class ProgramLoaderUpgradeable:
 
     @staticmethod
     def upgrade():
-        pass
+        r = bytearray()
+        r.extend(bytearray([0x03, 0x00, 0x00, 0x00]))
+        return r
 
     @staticmethod
     def set_authority():
