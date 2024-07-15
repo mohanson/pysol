@@ -9,46 +9,46 @@ class Fp:
 
     p = 0
 
-    def __init__(self, x: int):
+    def __init__(self, x: int) -> None:
         self.x = x % self.p
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Fp(0x{self.x:064x})'
 
-    def __eq__(self, data: Self):
+    def __eq__(self, data: Self) -> bool:
         assert self.p == data.p
         return self.x == data.x
 
-    def __add__(self, data: Self):
+    def __add__(self, data: Self) -> Self:
         assert self.p == data.p
         return self.__class__((self.x + data.x) % self.p)
 
-    def __sub__(self, data: Self):
+    def __sub__(self, data: Self) -> Self:
         assert self.p == data.p
         return self.__class__((self.x - data.x) % self.p)
 
-    def __mul__(self, data: Self):
+    def __mul__(self, data: Self) -> Self:
         assert self.p == data.p
         return self.__class__((self.x * data.x) % self.p)
 
-    def __truediv__(self, data: Self):
+    def __truediv__(self, data: Self) -> Self:
         return self * data ** -1
 
-    def __pow__(self, data: int):
+    def __pow__(self, data: int) -> Self:
         return self.__class__(pow(self.x, data, self.p))
 
-    def __pos__(self):
+    def __pos__(self) -> Self:
         return self
 
-    def __neg__(self):
+    def __neg__(self) -> Self:
         return self.__class__(self.p - self.x)
 
     @classmethod
-    def nil(cls):
+    def nil(cls) -> Self:
         return cls(0)
 
     @classmethod
-    def one(cls):
+    def one(cls) -> Self:
         return cls(1)
 
 
@@ -69,7 +69,7 @@ class Fq(Fp):
 
     p = P
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Fq(0x{self.x:064x})'
 
 
@@ -77,7 +77,7 @@ class Fr(Fp):
 
     p = N
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Fr(0x{self.x:064x})'
 
 
@@ -87,15 +87,15 @@ D = -Fq(121665) / Fq(121666)
 
 class Pt:
 
-    def __init__(self, x: Fq, y: Fq):
+    def __init__(self, x: Fq, y: Fq) -> None:
         assert y * y - x * x == Fq(1) + D * x * x * y * y
         self.x = x
         self.y = y
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Pt({self.x}, {self.y})'
 
-    def __eq__(self, data: Self):
+    def __eq__(self, data: Self) -> bool:
         return all([
             self.x == data.x,
             self.y == data.y,

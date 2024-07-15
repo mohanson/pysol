@@ -20,7 +20,7 @@ def call(method: str, params: typing.List) -> typing.Any:
     return r['result']
 
 
-def hang(signature: typing.List[str]):
+def hang(signature: typing.List[str]) -> None:
     a = signature.copy()
     for _ in itertools.repeat(0):
         time.sleep(1)
@@ -31,7 +31,7 @@ def hang(signature: typing.List[str]):
             break
 
 
-def wait(signature: str):
+def wait(signature: str) -> None:
     return hang([signature])
 
 

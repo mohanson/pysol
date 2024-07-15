@@ -2,23 +2,24 @@ import base64
 import json
 import random
 import sol
+import typing
 
 
 class Wallet:
-    def __init__(self, prikey: sol.core.PriKey):
+    def __init__(self, prikey: sol.core.PriKey) -> None:
         self.prikey = prikey
         self.pubkey = prikey.pubkey()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return json.dumps(self.json())
 
-    def json(self):
+    def json(self) -> typing.Dict:
         return {
             'prikey': self.prikey.base58(),
             'pubkey': self.pubkey.base58(),
         }
 
-    def balance(self):
+    def balance(self) -> int:
         return sol.rpc.get_balance(self.pubkey.base58())
 
     def program_create_buffer(self, program: bytearray) -> sol.core.PubKey:
@@ -99,7 +100,7 @@ class Wallet:
         sol.rpc.wait(hash)
         return program_pubkey
 
-    def program_update(self, program: bytearray, program_pubkey: sol.core.PubKey):
+    def program_update(self, program: bytearray, program_pubkey: sol.core.PubKey) -> None:
         program_buffer_pubkey = self.program_create_buffer(program)
         program_data_pubkey = sol.core.pda(sol.core.ProgramLoaderUpgradeable.pubkey, program_pubkey.p)
         tx = sol.core.Transaction([], sol.core.Message(sol.core.MessageHeader(1, 0, 3), [], bytearray(), []))

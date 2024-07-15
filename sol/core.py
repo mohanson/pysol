@@ -95,14 +95,14 @@ class ProgramLoaderUpgradeable:
         return r
 
     @staticmethod
-    def deploy_with_max_data_len(size: int):
+    def deploy_with_max_data_len(size: int) -> bytearray:
         r = bytearray()
         r.extend(bytearray([0x02, 0x00, 0x00, 0x00]))
         r.extend(bytearray(size.to_bytes(8, 'little')))
         return r
 
     @staticmethod
-    def upgrade():
+    def upgrade() -> bytearray:
         r = bytearray()
         r.extend(bytearray([0x03, 0x00, 0x00, 0x00]))
         return r
