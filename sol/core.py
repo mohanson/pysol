@@ -21,15 +21,15 @@ class PriKey:
     def base58(self) -> str:
         return sol.base58.encode(self.p)
 
-    @staticmethod
-    def base58_decode(data: str) -> Self:
+    @classmethod
+    def base58_decode(cls, data: str) -> Self:
         return PriKey(sol.base58.decode(data))
 
     def hex(self) -> str:
         return self.p.hex()
 
-    @staticmethod
-    def hex_decode(data: str) -> Self:
+    @classmethod
+    def hex_decode(cls, data: str) -> Self:
         return PriKey(bytearray.fromhex(data))
 
     def pubkey(self):
@@ -53,16 +53,16 @@ class PubKey:
     def base58(self) -> str:
         return sol.base58.encode(self.p)
 
-    @staticmethod
-    def base58_decode(data: str) -> Self:
-        return PriKey(sol.base58.decode(data))
+    @classmethod
+    def base58_decode(cls, data: str) -> Self:
+        return PubKey(sol.base58.decode(data))
 
     def hex(self) -> str:
         return self.p.hex()
 
-    @staticmethod
-    def hex_decode(data: str) -> Self:
-        return PriKey(bytearray.fromhex(data))
+    @classmethod
+    def hex_decode(cls, data: str) -> Self:
+        return PubKey(bytearray.fromhex(data))
 
 
 class ProgramClock:
@@ -79,14 +79,14 @@ class ProgramLoaderUpgradeable:
     size_program_data_metadata = 45  # Size of a programdata account's serialized metadata.
     size_program = 36  # Size of a serialized program account.
 
-    @staticmethod
-    def initialize_buffer() -> bytearray:
+    @classmethod
+    def initialize_buffer(cls) -> bytearray:
         r = bytearray()
         r.extend(bytearray([0x00, 0x00, 0x00, 0x00]))
         return r
 
-    @staticmethod
-    def write(offset: int, data: bytearray) -> bytearray:
+    @classmethod
+    def write(cls, offset: int, data: bytearray) -> bytearray:
         r = bytearray()
         r.extend(bytearray([0x01, 0x00, 0x00, 0x00]))
         r.extend(bytearray(offset.to_bytes(4, 'little')))
@@ -94,33 +94,33 @@ class ProgramLoaderUpgradeable:
         r.extend(data)  # Bytes
         return r
 
-    @staticmethod
-    def deploy_with_max_data_len(size: int) -> bytearray:
+    @classmethod
+    def deploy_with_max_data_len(cls, size: int) -> bytearray:
         r = bytearray()
         r.extend(bytearray([0x02, 0x00, 0x00, 0x00]))
         r.extend(bytearray(size.to_bytes(8, 'little')))
         return r
 
-    @staticmethod
-    def upgrade() -> bytearray:
+    @classmethod
+    def upgrade(cls) -> bytearray:
         r = bytearray()
         r.extend(bytearray([0x03, 0x00, 0x00, 0x00]))
         return r
 
-    @staticmethod
-    def set_authority():
+    @classmethod
+    def set_authority(cls):
         pass
 
-    @staticmethod
-    def close():
+    @classmethod
+    def close(cls):
         pass
 
-    @staticmethod
-    def extend_program():
+    @classmethod
+    def extend_program(cls):
         pass
 
-    @staticmethod
-    def set_authority_checked():
+    @classmethod
+    def set_authority_checked(cls):
         pass
 
 
@@ -133,8 +133,8 @@ class ProgramSystem:
 
     pubkey = PubKey(bytearray(32))
 
-    @staticmethod
-    def create(value: int, space: int, program_id: PubKey) -> bytearray:
+    @classmethod
+    def create(cls, value: int, space: int, program_id: PubKey) -> bytearray:
         r = bytearray()
         r.extend(bytearray(int(0).to_bytes(4, 'little')))
         r.extend(bytearray(int(value).to_bytes(8, 'little')))
@@ -142,55 +142,55 @@ class ProgramSystem:
         r.extend(program_id.p)
         return r
 
-    @staticmethod
-    def assign():
+    @classmethod
+    def assign(cls):
         pass
 
-    @staticmethod
-    def transfer(value: int) -> bytearray:
+    @classmethod
+    def transfer(cls, value: int) -> bytearray:
         r = bytearray()
         r.extend(bytearray(int(2).to_bytes(4, 'little')))
         r.extend(bytearray(int(value).to_bytes(8, 'little')))
         return r
 
-    @staticmethod
-    def create_with_seed():
+    @classmethod
+    def create_with_seed(cls):
         pass
 
-    @staticmethod
-    def advance_nonce_account():
+    @classmethod
+    def advance_nonce_account(cls):
         pass
 
-    @staticmethod
-    def withdraw_nonce_account():
+    @classmethod
+    def withdraw_nonce_account(cls):
         pass
 
-    @staticmethod
-    def initialize_nonce_account():
+    @classmethod
+    def initialize_nonce_account(cls):
         pass
 
-    @staticmethod
-    def authorize_nonce_account():
+    @classmethod
+    def authorize_nonce_account(cls):
         pass
 
-    @staticmethod
-    def allocate():
+    @classmethod
+    def allocate(cls):
         pass
 
-    @staticmethod
-    def allocate_with_seed():
+    @classmethod
+    def allocate_with_seed(cls):
         pass
 
-    @staticmethod
-    def assign_with_seed():
+    @classmethod
+    def assign_with_seed(cls):
         pass
 
-    @staticmethod
-    def transfer_with_seed():
+    @classmethod
+    def transfer_with_seed(cls):
         pass
 
-    @staticmethod
-    def upgrade_nonce_account():
+    @classmethod
+    def upgrade_nonce_account(cls):
         pass
 
 
@@ -269,8 +269,8 @@ class Instruction:
             'data': sol.base58.encode(self.data)
         }
 
-    @staticmethod
-    def json_decode(data: typing.Dict) -> Self:
+    @classmethod
+    def json_decode(cls, data: typing.Dict) -> Self:
         return Instruction(data['programIdIndex'], data['accounts'], sol.base58.decode(data['data']))
 
     def serialize(self) -> bytearray:
@@ -283,12 +283,12 @@ class Instruction:
         r.extend(self.data)
         return r
 
-    @staticmethod
-    def serialize_decode(data: bytearray) -> Self:
+    @classmethod
+    def serialize_decode(cls, data: bytearray) -> Self:
         return Instruction.serialize_decode_reader(io.BytesIO(data))
 
-    @staticmethod
-    def serialize_decode_reader(reader: io.BytesIO) -> Self:
+    @classmethod
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> Self:
         i = Instruction(0, [], bytearray())
         i.program_id_index = int(reader.read(1)[0])
         for _ in range(compact_u16_decode_reader(reader)):
@@ -318,8 +318,8 @@ class MessageHeader:
             'numReadonlyUnsignedAccounts': self.num_readonly_unsigned_accounts,
         }
 
-    @staticmethod
-    def json_decode(data: str) -> Self:
+    @classmethod
+    def json_decode(cls, data: str) -> Self:
         return MessageHeader(
             data['numRequiredSignatures'],
             data['numReadonlySignedAccounts'],
@@ -333,13 +333,13 @@ class MessageHeader:
             self.num_readonly_unsigned_accounts,
         ])
 
-    @staticmethod
-    def serialize_decode(data: bytearray) -> Self:
+    @classmethod
+    def serialize_decode(cls, data: bytearray) -> Self:
         assert len(data) == 3
         return MessageHeader(data[0], data[1], data[2])
 
-    @staticmethod
-    def serialize_decode_reader(reader: io.BytesIO) -> Self:
+    @classmethod
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> Self:
         return MessageHeader.serialize_decode(bytearray(reader.read(3)))
 
 
@@ -367,8 +367,8 @@ class Message:
             'instructions': [e.json() for e in self.instructions],
         }
 
-    @staticmethod
-    def json_decode(data: str) -> Self:
+    @classmethod
+    def json_decode(cls, data: str) -> Self:
         return Message(
             MessageHeader.json_decode(data['header']),
             [PubKey.base58_decode(e) for e in data['accountKeys']],
@@ -388,12 +388,12 @@ class Message:
             r.extend(e.serialize())
         return r
 
-    @staticmethod
-    def serialize_decode(data: bytearray) -> Self:
+    @classmethod
+    def serialize_decode(cls, data: bytearray) -> Self:
         return Message.serialize_decode_reader(io.BytesIO(data))
 
-    @staticmethod
-    def serialize_decode_reader(reader: io.BytesIO) -> Self:
+    @classmethod
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> Self:
         m = Message(MessageHeader.serialize_decode_reader(reader), [], bytearray(), [])
         for _ in range(compact_u16_decode_reader(reader)):
             m.account_keys.append(PubKey(bytearray(reader.read(32))))
@@ -417,8 +417,8 @@ class Transaction:
             'message': self.message.json()
         }
 
-    @staticmethod
-    def json_decode(data: typing.Dict) -> Self:
+    @classmethod
+    def json_decode(cls, data: typing.Dict) -> Self:
         return Transaction([sol.base58.decode(e) for e in data['signatures']], Message.json_decode(data['message']))
 
     def serialize(self) -> bytearray:
@@ -429,12 +429,12 @@ class Transaction:
         r.extend(self.message.serialize())
         return r
 
-    @staticmethod
-    def serialize_decode(data: bytearray) -> Self:
+    @classmethod
+    def serialize_decode(cls, data: bytearray) -> Self:
         return Transaction.serialize_decode_reader(io.BytesIO(data))
 
-    @staticmethod
-    def serialize_decode_reader(reader: io.BytesIO) -> Self:
+    @classmethod
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> Self:
         s = []
         for _ in range(compact_u16_decode_reader(reader)):
             s.append(bytearray(reader.read(64)))
