@@ -65,3 +65,10 @@ def test_transaction():
     tx = sol.core.Transaction.serialize_decode(data)
     assert tx.serialize() == data
     assert tx.json() == sol.core.Transaction.json_decode(tx.json()).json()
+
+
+def test_wif():
+    prikey = sol.core.PriKey(bytearray(int(1).to_bytes(32)))
+    wif = prikey.wif()
+    assert wif == 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFMtav2rXn79au8yvzCadhc0mUe1LiFtYafJBrt8KW6KQ=='
+    assert sol.core.PriKey.wif_decode(wif) == prikey

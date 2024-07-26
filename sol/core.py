@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import io
 import json
@@ -37,6 +38,14 @@ class PriKey:
 
     def sign(self, data: bytearray) -> bytearray:
         return sol.eddsa.sign(self.p, data)
+
+    def wif(self) -> str:
+        pubkey = self.pubkey()
+        return base64.b64encode(self.p + pubkey.p).decode()
+
+    @classmethod
+    def wif_decode(cls, data: str) -> Self:
+        return PriKey(bytearray(base64.b64decode(data))[:32])
 
 
 class PubKey:
