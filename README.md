@@ -77,6 +77,16 @@ $ python example/transfer.py --prikey 0x1 --to 8pM1DN3RiT8vbom5u1sNryaNT1nyL8CTT
 # 4GhcAygac8krnrJgF2tCSNxRyWsquCZ26NPM6o9oP3bPQFkAzi22CGn9RszBXzqPErujVxwzenTHoTMHuiZm98Wu
 ```
 
+**example/wif.py**
+
+Calculate the wallet import format from the private key. This is useful when you are trying to import an account in phantom wallet.
+
+```sh
+$ python example/wif.py --prikey 0x1
+
+# AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFMtav2rXn79au8yvzCadhc0mUe1LiFtYafJBrt8KW6KQ==
+```
+
 ## Test
 
 ```sh

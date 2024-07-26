@@ -19,3 +19,7 @@ def test_program():
 
 def test_transfer():
     call('python example/transfer.py --prikey 0x1 --to 8pM1DN3RiT8vbom5u1sNryaNT1nyL8CTTW3b5PwWXRBH --value 0.05')
+
+
+def test_wif():
+    call('python example/wif.py --prikey 0x1')
