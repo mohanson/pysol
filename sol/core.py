@@ -5,7 +5,6 @@ import json
 import sol.base58
 import sol.eddsa
 import typing
-Self = typing.Self
 
 
 class PriKey:
@@ -23,14 +22,14 @@ class PriKey:
         return sol.base58.encode(self.p)
 
     @classmethod
-    def base58_decode(cls, data: str) -> Self:
+    def base58_decode(cls, data: str) -> typing.Self:
         return PriKey(sol.base58.decode(data))
 
     def hex(self) -> str:
         return self.p.hex()
 
     @classmethod
-    def hex_decode(cls, data: str) -> Self:
+    def hex_decode(cls, data: str) -> typing.Self:
         return PriKey(bytearray.fromhex(data))
 
     def pubkey(self):
@@ -44,7 +43,7 @@ class PriKey:
         return base64.b64encode(self.p + pubkey.p).decode()
 
     @classmethod
-    def wif_decode(cls, data: str) -> Self:
+    def wif_decode(cls, data: str) -> typing.Self:
         return PriKey(bytearray(base64.b64decode(data))[:32])
 
 
@@ -63,14 +62,14 @@ class PubKey:
         return sol.base58.encode(self.p)
 
     @classmethod
-    def base58_decode(cls, data: str) -> Self:
+    def base58_decode(cls, data: str) -> typing.Self:
         return PubKey(sol.base58.decode(data))
 
     def hex(self) -> str:
         return self.p.hex()
 
     @classmethod
-    def hex_decode(cls, data: str) -> Self:
+    def hex_decode(cls, data: str) -> typing.Self:
         return PubKey(bytearray.fromhex(data))
 
 
@@ -279,7 +278,7 @@ class Instruction:
         }
 
     @classmethod
-    def json_decode(cls, data: typing.Dict) -> Self:
+    def json_decode(cls, data: typing.Dict) -> typing.Self:
         return Instruction(data['programIdIndex'], data['accounts'], sol.base58.decode(data['data']))
 
     def serialize(self) -> bytearray:
@@ -293,11 +292,11 @@ class Instruction:
         return r
 
     @classmethod
-    def serialize_decode(cls, data: bytearray) -> Self:
+    def serialize_decode(cls, data: bytearray) -> typing.Self:
         return Instruction.serialize_decode_reader(io.BytesIO(data))
 
     @classmethod
-    def serialize_decode_reader(cls, reader: io.BytesIO) -> Self:
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> typing.Self:
         i = Instruction(0, [], bytearray())
         i.program_id_index = int(reader.read(1)[0])
         for _ in range(compact_u16_decode_reader(reader)):
@@ -328,7 +327,7 @@ class MessageHeader:
         }
 
     @classmethod
-    def json_decode(cls, data: str) -> Self:
+    def json_decode(cls, data: str) -> typing.Self:
         return MessageHeader(
             data['numRequiredSignatures'],
             data['numReadonlySignedAccounts'],
@@ -343,12 +342,12 @@ class MessageHeader:
         ])
 
     @classmethod
-    def serialize_decode(cls, data: bytearray) -> Self:
+    def serialize_decode(cls, data: bytearray) -> typing.Self:
         assert len(data) == 3
         return MessageHeader(data[0], data[1], data[2])
 
     @classmethod
-    def serialize_decode_reader(cls, reader: io.BytesIO) -> Self:
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> typing.Self:
         return MessageHeader.serialize_decode(bytearray(reader.read(3)))
 
 
@@ -377,7 +376,7 @@ class Message:
         }
 
     @classmethod
-    def json_decode(cls, data: str) -> Self:
+    def json_decode(cls, data: str) -> typing.Self:
         return Message(
             MessageHeader.json_decode(data['header']),
             [PubKey.base58_decode(e) for e in data['accountKeys']],
@@ -398,11 +397,11 @@ class Message:
         return r
 
     @classmethod
-    def serialize_decode(cls, data: bytearray) -> Self:
+    def serialize_decode(cls, data: bytearray) -> typing.Self:
         return Message.serialize_decode_reader(io.BytesIO(data))
 
     @classmethod
-    def serialize_decode_reader(cls, reader: io.BytesIO) -> Self:
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> typing.Self:
         m = Message(MessageHeader.serialize_decode_reader(reader), [], bytearray(), [])
         for _ in range(compact_u16_decode_reader(reader)):
             m.account_keys.append(PubKey(bytearray(reader.read(32))))
@@ -427,7 +426,7 @@ class Transaction:
         }
 
     @classmethod
-    def json_decode(cls, data: typing.Dict) -> Self:
+    def json_decode(cls, data: typing.Dict) -> typing.Self:
         return Transaction([sol.base58.decode(e) for e in data['signatures']], Message.json_decode(data['message']))
 
     def serialize(self) -> bytearray:
@@ -439,11 +438,11 @@ class Transaction:
         return r
 
     @classmethod
-    def serialize_decode(cls, data: bytearray) -> Self:
+    def serialize_decode(cls, data: bytearray) -> typing.Self:
         return Transaction.serialize_decode_reader(io.BytesIO(data))
 
     @classmethod
-    def serialize_decode_reader(cls, reader: io.BytesIO) -> Self:
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> typing.Self:
         s = []
         for _ in range(compact_u16_decode_reader(reader)):
             s.append(bytearray(reader.read(64)))

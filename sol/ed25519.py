@@ -1,5 +1,4 @@
 import typing
-Self = typing.Self
 
 
 class Fp:
@@ -15,40 +14,40 @@ class Fp:
     def __repr__(self) -> str:
         return f'Fp(0x{self.x:064x})'
 
-    def __eq__(self, data: Self) -> bool:
+    def __eq__(self, data: typing.Self) -> bool:
         assert self.p == data.p
         return self.x == data.x
 
-    def __add__(self, data: Self) -> Self:
+    def __add__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
         return self.__class__((self.x + data.x) % self.p)
 
-    def __sub__(self, data: Self) -> Self:
+    def __sub__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
         return self.__class__((self.x - data.x) % self.p)
 
-    def __mul__(self, data: Self) -> Self:
+    def __mul__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
         return self.__class__((self.x * data.x) % self.p)
 
-    def __truediv__(self, data: Self) -> Self:
+    def __truediv__(self, data: typing.Self) -> typing.Self:
         return self * data ** -1
 
-    def __pow__(self, data: int) -> Self:
+    def __pow__(self, data: int) -> typing.Self:
         return self.__class__(pow(self.x, data, self.p))
 
-    def __pos__(self) -> Self:
+    def __pos__(self) -> typing.Self:
         return self
 
-    def __neg__(self) -> Self:
+    def __neg__(self) -> typing.Self:
         return self.__class__(self.p - self.x)
 
     @classmethod
-    def nil(cls) -> Self:
+    def nil(cls) -> typing.Self:
         return cls(0)
 
     @classmethod
-    def one(cls) -> Self:
+    def one(cls) -> typing.Self:
         return cls(1)
 
 
@@ -95,13 +94,13 @@ class Pt:
     def __repr__(self) -> str:
         return f'Pt({self.x}, {self.y})'
 
-    def __eq__(self, data: Self) -> bool:
+    def __eq__(self, data: typing.Self) -> bool:
         return all([
             self.x == data.x,
             self.y == data.y,
         ])
 
-    def __add__(self, data: Self) -> Self:
+    def __add__(self, data: typing.Self) -> typing.Self:
         # https://datatracker.ietf.org/doc/html/rfc8032#ref-CURVE25519
         # Points on the curve form a group under addition, (x3, y3) = (x1, y1) + (x2, y2), with the formulas
         #           x1 * y2 + x2 * y1                y1 * y2 - a * x1 * x2
@@ -113,10 +112,10 @@ class Pt:
         y3 = (y1 * y2 - A * x1 * x2) / (Fq(1) - D * x1 * x2 * y1 * y2)
         return Pt(x3, y3)
 
-    def __sub__(self, data: Self) -> Self:
+    def __sub__(self, data: typing.Self) -> typing.Self:
         return self + data.__neg__()
 
-    def __mul__(self, k: Fr) -> Self:
+    def __mul__(self, k: Fr) -> typing.Self:
         # Point multiplication: Double-and-add
         # https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
         n = k.x
@@ -130,13 +129,13 @@ class Pt:
             n = n >> 1
         return result
 
-    def __truediv__(self, k: Fr) -> Self:
+    def __truediv__(self, k: Fr) -> typing.Self:
         return self.__mul__(k ** -1)
 
-    def __pos__(self) -> Self:
+    def __pos__(self) -> typing.Self:
         return self
 
-    def __neg__(self) -> Self:
+    def __neg__(self) -> typing.Self:
         return Pt(-self.x, self.y)
 
 
