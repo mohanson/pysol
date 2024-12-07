@@ -1,4 +1,4 @@
 /.pytest_cache
 /build
 /dist
-/pysol.egg-info
+/pxsol.egg-info

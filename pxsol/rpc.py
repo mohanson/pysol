@@ -1,7 +1,7 @@
 import itertools
+import pxsol.config
 import random
 import requests
-import sol.config
 import time
 import typing
 
@@ -9,7 +9,7 @@ import typing
 
 
 def call(method: str, params: typing.List) -> typing.Any:
-    r = requests.post(sol.config.current.url, json={
+    r = requests.post(pxsol.config.current.url, json={
         'id': random.randint(0x00000000, 0xffffffff),
         'jsonrpc': '2.0',
         'method': method,

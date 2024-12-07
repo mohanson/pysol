@@ -1,7 +1,7 @@
 import argparse
 import base64
-import sol
 import pathlib
+import pxsol
 
 # Publish a hello solana program, call it to show "Hello, Solana!". Then we update the program and call it again, and
 # finally it will be explicit "Hello, Update!".
@@ -14,13 +14,13 @@ parser.add_argument('--prikey', type=str, help='private key')
 args = parser.parse_args()
 
 if args.net == 'develop':
-    sol.config.current = sol.config.develop
+    pxsol.config.current = pxsol.config.develop
 if args.net == 'mainnet':
-    sol.config.current = sol.config.mainnet
+    pxsol.config.current = pxsol.config.mainnet
 if args.net == 'testnet':
-    sol.config.current = sol.config.testnet
+    pxsol.config.current = pxsol.config.testnet
 
-user = sol.wallet.Wallet(sol.core.PriKey(bytearray(int(args.prikey, 0).to_bytes(32))))
+user = pxsol.wallet.Wallet(pxsol.core.PriKey(bytearray(int(args.prikey, 0).to_bytes(32))))
 
 if args.action == 'deploy':
     data = bytearray(pathlib.Path('res/hello_solana_program.so').read_bytes())
@@ -28,22 +28,22 @@ if args.action == 'deploy':
     print('Program ID:', pubkey)
 
 if args.action == 'call':
-    tx = sol.core.Transaction([], sol.core.Message(sol.core.MessageHeader(1, 0, 1), [], bytearray(), []))
+    tx = pxsol.core.Transaction([], pxsol.core.Message(pxsol.core.MessageHeader(1, 0, 1), [], bytearray(), []))
     tx.message.account_keys.append(user.pubkey)
-    tx.message.account_keys.append(sol.core.PubKey.base58_decode(args.addr))
-    tx.message.recent_blockhash = sol.base58.decode(sol.rpc.get_latest_blockhash()['blockhash'])
-    tx.message.instructions.append(sol.core.Instruction(1, [], bytearray()))
+    tx.message.account_keys.append(pxsol.core.PubKey.base58_decode(args.addr))
+    tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash()['blockhash'])
+    tx.message.instructions.append(pxsol.core.Instruction(1, [], bytearray()))
     tx.signatures.append(user.prikey.sign(tx.message.serialize()))
-    hash = sol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {
+    hash = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {
         'encoding': 'base64'
     })
-    sol.rpc.wait(hash)
-    r = sol.rpc.get_transaction(hash)
+    pxsol.rpc.wait(hash)
+    r = pxsol.rpc.get_transaction(hash)
     for e in r['meta']['logMessages']:
         print(e)
 
 if args.action == 'update':
     data = bytearray(pathlib.Path('res/hello_update_program.so').read_bytes())
-    pubkey = sol.core.PubKey.base58_decode(args.addr)
+    pubkey = pxsol.core.PubKey.base58_decode(args.addr)
     user.program_update(data, pubkey)
     print('Program ID:', pubkey)

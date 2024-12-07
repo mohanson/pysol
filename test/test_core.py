@@ -1,48 +1,48 @@
+import pxsol
 import random
-import sol
 
 
 def test_addr():
-    prikey = sol.core.PriKey(bytearray(int(1).to_bytes(32)))
+    prikey = pxsol.core.PriKey(bytearray(int(1).to_bytes(32)))
     pubkey = prikey.pubkey()
     assert pubkey.base58() == '6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt'
-    prikey = sol.core.PriKey(bytearray(int(2).to_bytes(32)))
+    prikey = pxsol.core.PriKey(bytearray(int(2).to_bytes(32)))
     pubkey = prikey.pubkey()
     assert pubkey.base58() == '8pM1DN3RiT8vbom5u1sNryaNT1nyL8CTTW3b5PwWXRBH'
 
 
 def test_compact_u16_encode():
-    assert sol.core.compact_u16_encode(0x0000), bytearray([0x00])
-    assert sol.core.compact_u16_encode(0x007f), bytearray([0x7f])
-    assert sol.core.compact_u16_encode(0x0080), bytearray([0x80, 0x01])
-    assert sol.core.compact_u16_encode(0x00ff), bytearray([0xff, 0x01])
-    assert sol.core.compact_u16_encode(0x0100), bytearray([0x80, 0x02])
-    assert sol.core.compact_u16_encode(0x7fff), bytearray([0xff, 0xff, 0x01])
-    assert sol.core.compact_u16_encode(0xffff), bytearray([0xff, 0xff, 0x03])
+    assert pxsol.core.compact_u16_encode(0x0000), bytearray([0x00])
+    assert pxsol.core.compact_u16_encode(0x007f), bytearray([0x7f])
+    assert pxsol.core.compact_u16_encode(0x0080), bytearray([0x80, 0x01])
+    assert pxsol.core.compact_u16_encode(0x00ff), bytearray([0xff, 0x01])
+    assert pxsol.core.compact_u16_encode(0x0100), bytearray([0x80, 0x02])
+    assert pxsol.core.compact_u16_encode(0x7fff), bytearray([0xff, 0xff, 0x01])
+    assert pxsol.core.compact_u16_encode(0xffff), bytearray([0xff, 0xff, 0x03])
 
 
 def test_compact_u16_decode():
-    assert sol.core.compact_u16_decode(bytearray([0x00])) == 0x0000
-    assert sol.core.compact_u16_decode(bytearray([0x7f])) == 0x007f
-    assert sol.core.compact_u16_decode(bytearray([0x80, 0x01])) == 0x0080
-    assert sol.core.compact_u16_decode(bytearray([0xff, 0x01])) == 0x00ff
-    assert sol.core.compact_u16_decode(bytearray([0x80, 0x02])) == 0x0100
-    assert sol.core.compact_u16_decode(bytearray([0xff, 0xff, 0x01])) == 0x7fff
-    assert sol.core.compact_u16_decode(bytearray([0xff, 0xff, 0x03])) == 0xffff
+    assert pxsol.core.compact_u16_decode(bytearray([0x00])) == 0x0000
+    assert pxsol.core.compact_u16_decode(bytearray([0x7f])) == 0x007f
+    assert pxsol.core.compact_u16_decode(bytearray([0x80, 0x01])) == 0x0080
+    assert pxsol.core.compact_u16_decode(bytearray([0xff, 0x01])) == 0x00ff
+    assert pxsol.core.compact_u16_decode(bytearray([0x80, 0x02])) == 0x0100
+    assert pxsol.core.compact_u16_decode(bytearray([0xff, 0xff, 0x01])) == 0x7fff
+    assert pxsol.core.compact_u16_decode(bytearray([0xff, 0xff, 0x03])) == 0xffff
 
 
 def test_compact_u16_random():
     for _ in range(8):
         n = random.randint(0, 0xffff)
-        assert sol.core.compact_u16_decode(sol.core.compact_u16_encode(n)) == n
+        assert pxsol.core.compact_u16_decode(pxsol.core.compact_u16_encode(n)) == n
 
 
 def test_pda():
-    pubkey = sol.core.PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
+    pubkey = pxsol.core.PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
     seed = bytearray(int(0).to_bytes(32))
-    assert sol.core.pda(pubkey, seed).base58() == '5ReXsszTZPmCZuH7wHPoEkxqRq3Bb1xWWcim13zDH6LX'
+    assert pxsol.core.pda(pubkey, seed).base58() == '5ReXsszTZPmCZuH7wHPoEkxqRq3Bb1xWWcim13zDH6LX'
     seed = bytearray(int(1).to_bytes(32))
-    assert sol.core.pda(pubkey, seed).base58() == 'Eb6T9mLCxAE1FxAXbCGpB5TN3yMbgo9rsP8A8HWGwuXc'
+    assert pxsol.core.pda(pubkey, seed).base58() == 'Eb6T9mLCxAE1FxAXbCGpB5TN3yMbgo9rsP8A8HWGwuXc'
 
 
 def test_transaction():
@@ -62,13 +62,13 @@ def test_transaction():
         0xb6, 0xec, 0x4e, 0xfd, 0x25, 0x01, 0x02, 0x02, 0x00, 0x01, 0x0c, 0x02, 0x00, 0x00, 0x00, 0x00,
         0xca, 0x9a, 0x3b, 0x00, 0x00, 0x00, 0x00,
     ])
-    tx = sol.core.Transaction.serialize_decode(data)
+    tx = pxsol.core.Transaction.serialize_decode(data)
     assert tx.serialize() == data
-    assert tx.json() == sol.core.Transaction.json_decode(tx.json()).json()
+    assert tx.json() == pxsol.core.Transaction.json_decode(tx.json()).json()
 
 
 def test_wif():
-    prikey = sol.core.PriKey(bytearray(int(1).to_bytes(32)))
+    prikey = pxsol.core.PriKey(bytearray(int(1).to_bytes(32)))
     wif = prikey.wif()
     assert wif == 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFMtav2rXn79au8yvzCadhc0mUe1LiFtYafJBrt8KW6KQ=='
-    assert sol.core.PriKey.wif_decode(wif) == prikey
+    assert pxsol.core.PriKey.wif_decode(wif) == prikey

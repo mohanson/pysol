@@ -1,5 +1,5 @@
 import argparse
-import sol
+import pxsol
 
 # Get the balance by an address.
 
@@ -9,11 +9,11 @@ parser.add_argument('--net', type=str, choices=['develop', 'mainnet', 'testnet']
 args = parser.parse_args()
 
 if args.net == 'develop':
-    sol.config.current = sol.config.develop
+    pxsol.config.current = pxsol.config.develop
 if args.net == 'mainnet':
-    sol.config.current = sol.config.mainnet
+    pxsol.config.current = pxsol.config.mainnet
 if args.net == 'testnet':
-    sol.config.current = sol.config.testnet
+    pxsol.config.current = pxsol.config.testnet
 
-balance = sol.rpc.get_balance(args.addr)
-print(balance / sol.denomination.sol)
+balance = pxsol.rpc.get_balance(args.addr)
+print(balance / pxsol.denomination.sol)

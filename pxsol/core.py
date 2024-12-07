@@ -2,8 +2,8 @@ import base64
 import hashlib
 import io
 import json
-import sol.base58
-import sol.eddsa
+import pxsol.base58
+import pxsol.eddsa
 import typing
 
 
@@ -19,11 +19,11 @@ class PriKey:
         return self.p == other.p
 
     def base58(self) -> str:
-        return sol.base58.encode(self.p)
+        return pxsol.base58.encode(self.p)
 
     @classmethod
     def base58_decode(cls, data: str) -> typing.Self:
-        return PriKey(sol.base58.decode(data))
+        return PriKey(pxsol.base58.decode(data))
 
     def hex(self) -> str:
         return self.p.hex()
@@ -33,10 +33,10 @@ class PriKey:
         return PriKey(bytearray.fromhex(data))
 
     def pubkey(self):
-        return PubKey(sol.eddsa.pubkey(self.p))
+        return PubKey(pxsol.eddsa.pubkey(self.p))
 
     def sign(self, data: bytearray) -> bytearray:
-        return sol.eddsa.sign(self.p, data)
+        return pxsol.eddsa.sign(self.p, data)
 
     def wif(self) -> str:
         pubkey = self.pubkey()
@@ -59,11 +59,11 @@ class PubKey:
         return self.p == other.p
 
     def base58(self) -> str:
-        return sol.base58.encode(self.p)
+        return pxsol.base58.encode(self.p)
 
     @classmethod
     def base58_decode(cls, data: str) -> typing.Self:
-        return PubKey(sol.base58.decode(data))
+        return PubKey(pxsol.base58.decode(data))
 
     def hex(self) -> str:
         return self.p.hex()
@@ -254,7 +254,7 @@ def pda(pubkey: PubKey, seed: bytearray) -> PubKey:
         data[len(seed)] = i
         hash = bytearray(hashlib.sha256(data).digest())
         try:
-            sol.eddsa.pt_decode(hash)
+            pxsol.eddsa.pt_decode(hash)
         except AssertionError:
             return PubKey(hash)
     raise Exception
@@ -274,12 +274,12 @@ class Instruction:
         return {
             'programIdIndex': self.program_id_index,
             'accounts': self.accounts,
-            'data': sol.base58.encode(self.data)
+            'data': pxsol.base58.encode(self.data)
         }
 
     @classmethod
     def json_decode(cls, data: typing.Dict) -> typing.Self:
-        return Instruction(data['programIdIndex'], data['accounts'], sol.base58.decode(data['data']))
+        return Instruction(data['programIdIndex'], data['accounts'], pxsol.base58.decode(data['data']))
 
     def serialize(self) -> bytearray:
         r = bytearray()
@@ -371,7 +371,7 @@ class Message:
         return {
             'header': self.header.json(),
             'accountKeys': [e.base58() for e in self.account_keys],
-            'recentBlockhash': sol.base58.encode(self.recent_blockhash),
+            'recentBlockhash': pxsol.base58.encode(self.recent_blockhash),
             'instructions': [e.json() for e in self.instructions],
         }
 
@@ -380,7 +380,7 @@ class Message:
         return Message(
             MessageHeader.json_decode(data['header']),
             [PubKey.base58_decode(e) for e in data['accountKeys']],
-            sol.base58.decode(data['recentBlockhash']),
+            pxsol.base58.decode(data['recentBlockhash']),
             [Instruction.json_decode(e) for e in data['instructions']]
         )
 
@@ -421,13 +421,13 @@ class Transaction:
 
     def json(self) -> typing.Dict:
         return {
-            'signatures': [sol.base58.encode(e) for e in self.signatures],
+            'signatures': [pxsol.base58.encode(e) for e in self.signatures],
             'message': self.message.json()
         }
 
     @classmethod
     def json_decode(cls, data: typing.Dict) -> typing.Self:
-        return Transaction([sol.base58.decode(e) for e in data['signatures']], Message.json_decode(data['message']))
+        return Transaction([pxsol.base58.decode(e) for e in data['signatures']], Message.json_decode(data['message']))
 
     def serialize(self) -> bytearray:
         r = bytearray()

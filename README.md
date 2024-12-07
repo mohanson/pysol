@@ -1,21 +1,27 @@
-# Python SDK for SOL
+# Pxsol: Solana Library For Humans
 
-Python SOL is an experimental project that aims to provide human-friendly interfaces for common SOL operations. Note that Python SOL is not a complete SDK, but only implements the SOL functions that I am interested in.
+> Pysol has been renamed to Pxsol, as the name is already taken on pypi.
+
+Pxsol is a project that aims to provide human-friendly interfaces for common solana operations. Using pxsol, you can easily and happily complete everything you want to do on sol.
 
 Features:
 
-- No third-party dependencies. All code is visible.
-- Incredibly simple.
+- No third-party dependencies, everything is visible.
+- Incredibly simple, even a cat knows how to use it.
 
 ## Installation
 
 ```sh
-$ git clone https://github.com/mohanson/pysol
-$ cd pysol
+$ pip install pxsol
+# or
+$ git clone https://github.com/mohanson/pxsol
+$ cd pxsol
 $ python -m pip install --editable .
 ```
 
 ## Usage
+
+By default, pxsol is configured on the develop. To switch networks, use `pxsol.config.current = pxsol.config.mainnet`.
 
 **example/addr.py**
 

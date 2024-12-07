@@ -1,13 +1,13 @@
-import sol
+import pxsol
 
 
 def test_g():
-    q = sol.ed25519.G * sol.ed25519.Fr(1)
+    q = pxsol.ed25519.G * pxsol.ed25519.Fr(1)
     assert q.x.x == 0x216936d3cd6e53fec0a4e231fdd6dc5c692cc7609525a7b2c9562d608f25d51a
     assert q.y.x == 0x6666666666666666666666666666666666666666666666666666666666666658
-    q = sol.ed25519.G * sol.ed25519.Fr(2)
+    q = pxsol.ed25519.G * pxsol.ed25519.Fr(2)
     assert q.x.x == 0x36ab384c9f5a046c3d043b7d1833e7ac080d8e4515d7a45f83c5a14e2843ce0e
     assert q.y.x == 0x2260cdf3092329c21da25ee8c9a21f5697390f51643851560e5f46ae6af8a3c9
-    q = sol.ed25519.G * sol.ed25519.Fr(3)
+    q = pxsol.ed25519.G * pxsol.ed25519.Fr(3)
     assert q.x.x == 0x67ae9c4a22928f491ff4ae743edac83a6343981981624886ac62485fd3f8e25c
     assert q.y.x == 0x1267b1d177ee69aba126a18e60269ef79f16ec176724030402c3684878f5b4d4

@@ -1,5 +1,5 @@
 import argparse
-import sol
+import pxsol
 
 # Transfer sol to other.
 
@@ -11,14 +11,14 @@ parser.add_argument('--value', type=float, help='sol value')
 args = parser.parse_args()
 
 if args.net == 'develop':
-    sol.config.current = sol.config.develop
+    pxsol.config.current = pxsol.config.develop
 if args.net == 'mainnet':
-    sol.config.current = sol.config.mainnet
+    pxsol.config.current = pxsol.config.mainnet
 if args.net == 'testnet':
-    sol.config.current = sol.config.testnet
+    pxsol.config.current = pxsol.config.testnet
 
-user = sol.wallet.Wallet(sol.core.PriKey(bytearray(int(args.prikey, 0).to_bytes(32))))
-hole = sol.core.PubKey.base58_decode(args.to)
-hash = user.transfer(hole, 0.05 * sol.denomination.sol)
-sol.rpc.wait(sol.base58.encode(hash))
-print(sol.base58.encode(hash))
+user = pxsol.wallet.Wallet(pxsol.core.PriKey(bytearray(int(args.prikey, 0).to_bytes(32))))
+hole = pxsol.core.PubKey.base58_decode(args.to)
+hash = user.transfer(hole, 0.05 * pxsol.denomination.sol)
+pxsol.rpc.wait(pxsol.base58.encode(hash))
+print(pxsol.base58.encode(hash))
