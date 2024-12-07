@@ -1,4 +1,3 @@
-import base64
 import hashlib
 import io
 import json
@@ -8,6 +7,10 @@ import typing
 
 
 class PriKey:
+    # Solana's private key is a 32-byte array, selected arbitrarily. In general, the private key is not used in
+    # isolation; instead, it forms a 64-byte keypair together with the public key, which is also a 32-byte array.
+    # Most solana wallets, such as phantom, import and export private keys in base58-encoded keypair format.
+
     def __init__(self, p: bytearray) -> None:
         assert len(p) == 32
         self.p = p
@@ -33,18 +36,24 @@ class PriKey:
         return PriKey(bytearray.fromhex(data))
 
     def pubkey(self):
+        # Get the public key.
         return PubKey(pxsol.eddsa.pubkey(self.p))
 
     def sign(self, data: bytearray) -> bytearray:
+        # Use this private key to sign a message of arbitrary length. The resulting signature is deterministic.
         return pxsol.eddsa.sign(self.p, data)
 
     def wif(self) -> str:
         pubkey = self.pubkey()
-        return base64.b64encode(self.p + pubkey.p).decode()
+        return pxsol.base58.encode(self.p + pubkey.p)
 
     @classmethod
     def wif_decode(cls, data: str) -> typing.Self:
-        return PriKey(bytearray(base64.b64decode(data))[:32])
+        pripub = pxsol.base58.decode(data)
+        prikey = PriKey(pripub[:32])
+        pubkey = PubKey(pripub[32:])
+        assert prikey.pubkey() == pubkey
+        return prikey
 
 
 class PubKey:

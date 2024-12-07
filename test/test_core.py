@@ -70,5 +70,5 @@ def test_transaction():
 def test_wif():
     prikey = pxsol.core.PriKey(bytearray(int(1).to_bytes(32)))
     wif = prikey.wif()
-    assert wif == 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFMtav2rXn79au8yvzCadhc0mUe1LiFtYafJBrt8KW6KQ=='
+    assert wif == '1111111111111111111111111111111PPm2a2NNZH2EFJ5UkEjkH9Fcxn8cvjTmZDKQQisyLDmA'
     assert pxsol.core.PriKey.wif_decode(wif) == prikey

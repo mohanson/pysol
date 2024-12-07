@@ -25,7 +25,11 @@ By default, pxsol is configured on the develop. To switch networks, use `pxsol.c
 
 **example/addr.py**
 
-Calculate the address from a private key. Solana's private key is a 32-byte array, which can be represented as a u256 integer.
+Calculate the address from a private key.
+
+Solana's private key is a 32-byte array, selected arbitrarily. In general, the private key is not used in isolation instead, it forms a 64-byte keypair together with the public key, which is also a 32-byte array. Most solana wallets, such as phantom, import and export private keys in base58-encoded keypair format.
+
+In this example, we use u256 to represent a 32-byte private key.
 
 ```sh
 $ python example/addr.py --prikey 0x1
@@ -90,7 +94,7 @@ Calculate the wallet import format from the private key. This is useful when you
 ```sh
 $ python example/wif.py --prikey 0x1
 
-# AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFMtav2rXn79au8yvzCadhc0mUe1LiFtYafJBrt8KW6KQ==
+# 1111111111111111111111111111111PPm2a2NNZH2EFJ5UkEjkH9Fcxn8cvjTmZDKQQisyLDmA
 ```
 
 ## Test
