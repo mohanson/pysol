@@ -52,6 +52,25 @@ def pt_decode(pt: bytearray) -> pxsol.ed25519.Pt:
     return pxsol.ed25519.Pt(x, y)
 
 
+def pt_exists(pt: bytearray) -> bool:
+    # Tests whether a point is on ed25519 curve.
+    uint = int.from_bytes(pt, 'little')
+    sign = uint >> 255
+    yint = uint & ((1 << 255) - 1)
+    if yint >= pxsol.ed25519.P:
+        return False
+    y = pxsol.ed25519.Fq(yint)
+    x_x = (y * y - pxsol.ed25519.Fq(1)) / (pxsol.ed25519.D * y * y + pxsol.ed25519.Fq(1))
+    x = x_x ** ((pxsol.ed25519.P + 3) // 8)
+    if x*x != x_x:
+        x = x * pxsol.ed25519.Fq(2) ** ((pxsol.ed25519.P - 1) // 4)
+    if x*x != x_x:
+        return False
+    if x == pxsol.ed25519.Fq(0) and sign:
+        return False
+    return True
+
+
 def pubkey(prikey: bytearray) -> bytearray:
     assert len(prikey) == 32
     h = hash(prikey)

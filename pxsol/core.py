@@ -57,6 +57,9 @@ class PriKey:
 
 
 class PubKey:
+    # Solana's public key is a 32-byte array. The base58 representation of the public key is also referred to as the
+    # address.
+
     def __init__(self, p: bytearray) -> None:
         assert len(p) == 32
         self.p = p
@@ -73,6 +76,23 @@ class PubKey:
     @classmethod
     def base58_decode(cls, data: str) -> typing.Self:
         return PubKey(pxsol.base58.decode(data))
+
+    def derive(self, seed: bytearray) -> typing.Self:
+        # Program Derived Address (PDA). PDAs are addresses derived deterministically using a combination of user-defined
+        # seeds, a bump seed, and a program's ID.
+        # See: https://solana.com/docs/core/pda
+        data = bytearray()
+        data.extend(seed)
+        data.append(0xff)
+        data.extend(self.p)
+        data.extend(bytearray('ProgramDerivedAddress'.encode()))
+        for i in range(255, -1, -1):
+            data[len(seed)] = i
+            hash = bytearray(hashlib.sha256(data).digest())
+            # The pda should fall off the ed25519 curve.
+            if not pxsol.eddsa.pt_exists(hash):
+                return PubKey(hash)
+        raise Exception
 
     def hex(self) -> str:
         return self.p.hex()
@@ -249,24 +269,6 @@ def compact_u16_decode_reader(reader: typing.BinaryIO) -> int:
     c = reader.read(1)[0]
     n += c << 14
     return n
-
-
-def pda(pubkey: PubKey, seed: bytearray) -> PubKey:
-    # Program Derived Address (PDA)
-    # See: https://solana.com/docs/core/pda
-    data = bytearray()
-    data.extend(seed)
-    data.append(0xff)
-    data.extend(pubkey.p)
-    data.extend(bytearray('ProgramDerivedAddress'.encode()))
-    for i in range(255, 0, -1):
-        data[len(seed)] = i
-        hash = bytearray(hashlib.sha256(data).digest())
-        try:
-            pxsol.eddsa.pt_decode(hash)
-        except AssertionError:
-            return PubKey(hash)
-    raise Exception
 
 
 class Instruction:

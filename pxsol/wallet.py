@@ -75,7 +75,7 @@ class Wallet:
         program_buffer_pubkey = self.program_create_buffer(program)
         program_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
         program_pubkey = program_prikey.pubkey()
-        program_data_pubkey = pxsol.core.pda(pxsol.core.ProgramLoaderUpgradeable.pubkey, program_pubkey.p)
+        program_data_pubkey = pxsol.core.ProgramLoaderUpgradeable.pubkey.derive(program_pubkey.p)
         # Deploy with max data len
         tx = pxsol.core.Transaction([], pxsol.core.Message(pxsol.core.MessageHeader(2, 0, 4), [], bytearray(), []))
         tx.message.account_keys.append(self.pubkey)
@@ -106,7 +106,7 @@ class Wallet:
 
     def program_update(self, program: bytearray, program_pubkey: pxsol.core.PubKey) -> None:
         program_buffer_pubkey = self.program_create_buffer(program)
-        program_data_pubkey = pxsol.core.pda(pxsol.core.ProgramLoaderUpgradeable.pubkey, program_pubkey.p)
+        program_data_pubkey = pxsol.core.ProgramLoaderUpgradeable.pubkey.derive(program_pubkey.p)
         tx = pxsol.core.Transaction([], pxsol.core.Message(pxsol.core.MessageHeader(1, 0, 3), [], bytearray(), []))
         tx.message.account_keys.append(self.pubkey)
         tx.message.account_keys.append(program_data_pubkey)

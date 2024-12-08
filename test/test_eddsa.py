@@ -3,7 +3,7 @@ import pytest
 import random
 
 
-def test_fail():
+def test_fail_verify():
     # The probability of success is negligible.
     for _ in range(8):
         pubkey = bytearray(random.randbytes(32))
@@ -13,14 +13,27 @@ def test_fail():
             assert pxsol.eddsa.verify(pubkey, msg, sig)
 
 
-def test_pt():
+def test_pt_encode_decode():
     for _ in range(8):
         k = pxsol.ed25519.Fr(random.randint(1, pxsol.ed25519.N - 1))
         p = pxsol.ed25519.G * k
         assert p == pxsol.eddsa.pt_decode(pxsol.eddsa.pt_encode(p))
 
 
-def test_sign():
+def test_pt_exists():
+    for _ in range(8):
+        pt = pxsol.ed25519.G * pxsol.ed25519.Fr(random.randint(1,  pxsol.ed25519.N))
+        ptbyte = pxsol.eddsa.pt_encode(pt)
+        assert pxsol.eddsa.pt_exists(ptbyte)
+        assert pxsol.eddsa.pt_decode(ptbyte) == pt
+    for _ in range(8):
+        ptbyte = bytearray(random.randbytes(32))
+        if not pxsol.eddsa.pt_exists(ptbyte):
+            with pytest.raises(AssertionError):
+                pxsol.eddsa.pt_decode(ptbyte)
+
+
+def test_sign_verify():
     # https://datatracker.ietf.org/doc/html/rfc8032#section-7.1
     # Test Vectors for Ed25519
     # TEST 1
