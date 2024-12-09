@@ -105,7 +105,7 @@ $ tar -xvf solana-release-x86_64-unknown-linux-gnu.tar.bz2
 $ cd solana-release
 
 # Run test validator
-$ solana-test-validator -l /tmp/test-ledger
+$ solana-test-validator -l /tmp/solana-ledger
 $ solana config set --url localhost
 $ solana airdrop 99 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt
 

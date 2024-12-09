@@ -13,6 +13,7 @@ class Wallet:
     def __init__(self, prikey: pxsol.core.PriKey) -> None:
         self.prikey = prikey
         self.pubkey = prikey.pubkey()
+        self.addr = self.pubkey.base58()
 
     def __repr__(self) -> str:
         return json.dumps(self.json())
@@ -24,7 +25,7 @@ class Wallet:
         }
 
     def balance(self) -> int:
-        return pxsol.rpc.get_balance(self.pubkey.base58())
+        return pxsol.rpc.get_balance(self.addr)
 
     def program_create_buffer(self, program: bytearray) -> pxsol.core.PubKey:
         program_buffer_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))

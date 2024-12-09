@@ -273,9 +273,15 @@ def compact_u16_decode_reader(reader: typing.BinaryIO) -> int:
 
 class Instruction:
     # A compact encoding of an instruction.
+
     def __init__(self, program_id_index: int, accounts: typing.List[int], data: bytearray) -> None:
+        # Identifies an on-chain program that will process the instruction. This is represented as an u8 index pointing
+        # to an account address within the account addresses array.
         self.program_id_index = program_id_index
+        # Array of u8 indexes pointing to the account addresses array for each account required by the instruction.
         self.accounts = accounts
+        # A u8 byte array specific to the program invoked. This data specifies the instruction to invoke on the program
+        # along with any additional data that the instruction requires (such as function arguments).
         self.data = data
 
     def __repr__(self) -> str:
@@ -317,6 +323,12 @@ class Instruction:
 
 
 class MessageHeader:
+    # The message header specifies the privileges of accounts included in the transaction's account address array. It
+    # is comprised of three bytes, each containing a u8 integer, which collectively specify:
+    # 1. The number of required signatures for the transaction.
+    # 2. The number of read-only account addresses that require signatures.
+    # 3. The number of read-only account addresses that do not require signatures.
+
     def __init__(
         self,
         num_required_signatures: int,
@@ -363,6 +375,8 @@ class MessageHeader:
 
 
 class Message:
+    # List of instructions to be processed atomically.
+
     def __init__(
         self,
         header: MessageHeader,
@@ -423,6 +437,8 @@ class Message:
 
 
 class Transaction:
+    # An atomically-committed sequence of instructions.
+
     def __init__(self, signatures: typing.List[bytearray], message: Message) -> None:
         self.signatures = signatures
         self.message = message
