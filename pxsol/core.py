@@ -128,7 +128,7 @@ class ProgramLoaderUpgradeable:
         r.extend(bytearray([0x01, 0x00, 0x00, 0x00]))
         r.extend(bytearray(offset.to_bytes(4, 'little')))
         r.extend(bytearray(len(data).to_bytes(8, 'little')))
-        r.extend(data)  # Bytes
+        r.extend(data)
         return r
 
     @classmethod
@@ -173,7 +173,7 @@ class ProgramSystem:
     @classmethod
     def create(cls, value: int, space: int, program_id: PubKey) -> bytearray:
         r = bytearray()
-        r.extend(bytearray(int(0).to_bytes(4, 'little')))
+        r.extend(bytearray([0x00, 0x00, 0x00, 0x00]))
         r.extend(bytearray(int(value).to_bytes(8, 'little')))
         r.extend(bytearray(int(space).to_bytes(8, 'little')))
         r.extend(program_id.p)
@@ -186,7 +186,7 @@ class ProgramSystem:
     @classmethod
     def transfer(cls, value: int) -> bytearray:
         r = bytearray()
-        r.extend(bytearray(int(2).to_bytes(4, 'little')))
+        r.extend(bytearray([0x02, 0x00, 0x00, 0x00]))
         r.extend(bytearray(int(value).to_bytes(8, 'little')))
         return r
 
