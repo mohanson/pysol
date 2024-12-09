@@ -34,11 +34,11 @@ if args.action == 'call':
     tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash()['blockhash'])
     tx.message.instructions.append(pxsol.core.Instruction(1, [], bytearray()))
     tx.signatures.append(user.prikey.sign(tx.message.serialize()))
-    hash = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {
+    txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {
         'encoding': 'base64'
     })
-    pxsol.rpc.wait(hash)
-    r = pxsol.rpc.get_transaction(hash)
+    pxsol.rpc.wait(txid)
+    r = pxsol.rpc.get_transaction(txid)
     for e in r['meta']['logMessages']:
         print(e)
 
