@@ -155,4 +155,5 @@ class Wallet:
 
     def transfer_all(self, pubkey: pxsol.core.PubKey) -> bytearray:
         # Transfers all lamports to the target.
-        return self.transfer(pubkey, self.balance() - pxsol.config.current.base_fee)
+        # Solana's base fee is a fixed 5000 lamports (0.000005 SOL) per signature.
+        return self.transfer(pubkey, self.balance() - 5000)
