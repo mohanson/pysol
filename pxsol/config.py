@@ -14,14 +14,17 @@ class ObjectDict(dict):
 
 develop = ObjectDict({
     'url': 'http://127.0.0.1:8899',
+    'commitment': 'confirmed'
 })
 
 mainnet = ObjectDict({
     'url': 'https://api.mainnet-beta.solana.com',
+    'commitment': 'confirmed'
 })
 
 testnet = ObjectDict({
     'url': 'https://api.devnet.solana.com',
+    'commitment': 'confirmed'
 })
 
 
