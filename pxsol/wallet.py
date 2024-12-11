@@ -28,7 +28,7 @@ class Wallet:
 
     def balance(self) -> int:
         # Returns the lamport balance of the account.
-        return pxsol.rpc.get_balance(self.addr)
+        return pxsol.rpc.get_balance(self.addr, {})
 
     def program_create_buffer(self, program: bytearray) -> pxsol.core.PubKey:
         # Writes a program into a buffer account. The buffer account is randomly generated, and its public key serves
@@ -44,9 +44,9 @@ class Wallet:
         tx.message.account_keys.append(program_buffer_pubkey)
         tx.message.account_keys.append(pxsol.core.ProgramSystem.pubkey)
         tx.message.account_keys.append(pxsol.core.ProgramLoaderUpgradeable.pubkey)
-        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash()['blockhash'])
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.message.instructions.append(pxsol.core.Instruction(2, [0, 1], pxsol.core.ProgramSystem.create(
-            pxsol.rpc.get_minimum_balance_for_rent_exemption(program_data_size),
+            pxsol.rpc.get_minimum_balance_for_rent_exemption(program_data_size, {}),
             pxsol.core.ProgramLoaderUpgradeable.size_buffer_metadata + len(program),
             pxsol.core.ProgramLoaderUpgradeable.pubkey,
         )))
@@ -54,9 +54,7 @@ class Wallet:
             3, [1, 0], pxsol.core.ProgramLoaderUpgradeable.initialize_buffer()))
         tx.signatures.append(self.prikey.sign(tx.message.serialize()))
         tx.signatures.append(program_buffer_prikey.sign(tx.message.serialize()))
-        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {
-            'encoding': 'base64'
-        })
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait(txid)
         # Breaks up the program byte-code into ~1KB chunks and sends transactions to write each chunk with the write
         # buffer instruction.
@@ -68,14 +66,12 @@ class Wallet:
             tx.message.account_keys.append(self.pubkey)
             tx.message.account_keys.append(program_buffer_pubkey)
             tx.message.account_keys.append(pxsol.core.ProgramLoaderUpgradeable.pubkey)
-            tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash()['blockhash'])
+            tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
             tx.message.instructions.append(pxsol.core.Instruction(
                 2, [1, 0], pxsol.core.ProgramLoaderUpgradeable.write(i, elem)))
             tx.signatures.append(self.prikey.sign(tx.message.serialize()))
             assert len(tx.serialize()) <= 1232
-            txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {
-                'encoding': 'base64'
-            })
+            txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
             hall.append(txid)
         pxsol.rpc.hang(hall)
         return program_buffer_pubkey
@@ -96,9 +92,9 @@ class Wallet:
         tx.message.account_keys.append(pxsol.core.ProgramLoaderUpgradeable.pubkey)
         tx.message.account_keys.append(pxsol.core.ProgramClock.pubKey)
         tx.message.account_keys.append(pxsol.core.ProgramRent.pubkey)
-        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash()['blockhash'])
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.message.instructions.append(pxsol.core.Instruction(4, [0, 1], pxsol.core.ProgramSystem.create(
-            pxsol.rpc.get_minimum_balance_for_rent_exemption(pxsol.core.ProgramLoaderUpgradeable.size_program),
+            pxsol.rpc.get_minimum_balance_for_rent_exemption(pxsol.core.ProgramLoaderUpgradeable.size_program, {}),
             pxsol.core.ProgramLoaderUpgradeable.size_program,
             pxsol.core.ProgramLoaderUpgradeable.pubkey,
         )))
@@ -108,9 +104,7 @@ class Wallet:
         ))
         tx.signatures.append(self.prikey.sign(tx.message.serialize()))
         tx.signatures.append(program_prikey.sign(tx.message.serialize()))
-        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {
-            'encoding': 'base64'
-        })
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait(txid)
         return program_pubkey
 
@@ -126,15 +120,13 @@ class Wallet:
         tx.message.account_keys.append(pxsol.core.ProgramLoaderUpgradeable.pubkey)
         tx.message.account_keys.append(pxsol.core.ProgramClock.pubKey)
         tx.message.account_keys.append(pxsol.core.ProgramRent.pubkey)
-        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash()['blockhash'])
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.message.instructions.append(pxsol.core.Instruction(
             4, [1, 2, 3, 0, 6, 5, 0],
             pxsol.core.ProgramLoaderUpgradeable.upgrade(),
         ))
         tx.signatures.append(self.prikey.sign(tx.message.serialize()))
-        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {
-            'encoding': 'base64'
-        })
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait(txid)
 
     def transfer(self, pubkey: pxsol.core.PubKey, value: int) -> bytearray:
@@ -144,15 +136,14 @@ class Wallet:
         tx.message.account_keys.append(self.pubkey)
         tx.message.account_keys.append(pubkey)
         tx.message.account_keys.append(pxsol.core.ProgramSystem.pubkey)
-        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash()['blockhash'])
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.message.instructions.append(pxsol.core.Instruction(2, [0, 1], pxsol.core.ProgramSystem.transfer(value)))
         tx.signatures.append(self.prikey.sign(tx.message.serialize()))
-        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {
-            'encoding': 'base64'
-        })
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         assert pxsol.base58.decode(txid) == tx.signatures[0]
         return tx.signatures[0]
 
     def transfer_all(self, pubkey: pxsol.core.PubKey) -> bytearray:
         # Transfers all lamports to the target.
-        return self.transfer(pubkey, self.balance() - pxsol.config.current.base_fee)
+        # Solana's base fee is a fixed 5000 lamports (0.000005 SOL) per signature.
+        return self.transfer(pubkey, self.balance() - 5000)

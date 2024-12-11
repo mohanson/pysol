@@ -14,18 +14,17 @@ class ObjectDict(dict):
 
 develop = ObjectDict({
     'url': 'http://127.0.0.1:8899',
-    # Solana's base fee is a fixed 5000 lamports (0.000005 SOL) per signature, and most transactions have one signature.
-    'base_fee': 5000,
+    'commitment': 'confirmed'
 })
 
 mainnet = ObjectDict({
     'url': 'https://api.mainnet-beta.solana.com',
-    'base_fee': 5000,
+    'commitment': 'confirmed'
 })
 
 testnet = ObjectDict({
     'url': 'https://api.devnet.solana.com',
-    'base_fee': 5000,
+    'commitment': 'confirmed'
 })
 
 

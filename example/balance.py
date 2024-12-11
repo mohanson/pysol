@@ -15,5 +15,5 @@ if args.net == 'mainnet':
 if args.net == 'testnet':
     pxsol.config.current = pxsol.config.testnet
 
-balance = pxsol.rpc.get_balance(args.addr)
+balance = pxsol.rpc.get_balance(args.addr, {})
 print(balance / pxsol.denomination.sol)
