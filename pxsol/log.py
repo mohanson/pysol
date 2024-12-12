@@ -1,10 +1,9 @@
 import datetime
-
-lvl = 0
+import pxsol
 
 
 def debugln(*args):
-    if lvl:
+    if pxsol.config.current.log:
         println(*args)
 
 

@@ -20,10 +20,12 @@ def call(method: str, params: typing.List) -> typing.Any:
     return r['result']
 
 
-def wait(signature: typing.List[str]) -> None:
-    remain = signature.copy()
+def wait(sigs: typing.List[str]) -> None:
+    remain = sigs.copy()
     for _ in itertools.repeat(0):
-        time.sleep(1)
+        if len(remain) == 0:
+            break
+        time.sleep(0.25)
         oldest = remain[:256]
         newest = remain[256:]
         result = get_signature_statuses(oldest, {})
@@ -35,8 +37,6 @@ def wait(signature: typing.List[str]) -> None:
             case _:
                 select = [e is None or e['confirmationStatus'] not in ['finalized'] for e in result]
         remain = list(itertools.compress(oldest, select)) + newest
-        if len(remain) == 0:
-            break
 
 
 def get_account_info(pubkey: str, conf: typing.Dict) -> typing.Dict:

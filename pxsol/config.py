@@ -13,18 +13,24 @@ class ObjectDict(dict):
 
 
 develop = ObjectDict({
+    # The default state of a commitment, one of the confirmed or finalized.
+    'commitment': 'confirmed',
+    # Display log output.
+    'log': 0,
+    # Http rpc.
     'url': 'http://127.0.0.1:8899',
-    'commitment': 'confirmed'
 })
 
 mainnet = ObjectDict({
+    'commitment': 'confirmed',
+    'log': 0,
     'url': 'https://api.mainnet-beta.solana.com',
-    'commitment': 'confirmed'
 })
 
 testnet = ObjectDict({
+    'commitment': 'confirmed',
+    'log': 0,
     'url': 'https://api.devnet.solana.com',
-    'commitment': 'confirmed'
 })
 
 
