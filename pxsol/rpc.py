@@ -1,3 +1,4 @@
+import base64
 import itertools
 import pxsol.config
 import random
@@ -23,6 +24,7 @@ def call(method: str, params: typing.List) -> typing.Any:
 def wait(sigs: typing.List[str]) -> None:
     remain = sigs.copy()
     for _ in itertools.repeat(0):
+        pxsol.log.debugln(f'pxsol: transaction wait remain={len(remain)}')
         if len(remain) == 0:
             break
         time.sleep(0.25)
@@ -275,6 +277,9 @@ def request_airdrop(pubkey: str, value: int, conf: typing.Dict) -> str:
 def send_transaction(tx: str, conf: typing.Dict) -> str:
     conf.setdefault('encoding', 'base64')
     conf.setdefault('preflightCommitment', pxsol.config.current.commitment)
+    txid = pxsol.core.Transaction.serialize_decode(base64.b64decode(tx)).signatures[0]
+    txid = pxsol.base58.encode(txid)
+    pxsol.log.debugln(f'pxsol: transaction send signature={txid}')
     return call('sendTransaction', [tx, conf])
 
 
