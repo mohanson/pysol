@@ -20,25 +20,23 @@ def call(method: str, params: typing.List) -> typing.Any:
     return r['result']
 
 
-def hang(signature: typing.List[str]) -> None:
-    a = signature.copy()
+def wait(signature: typing.List[str]) -> None:
+    remain = signature.copy()
     for _ in itertools.repeat(0):
         time.sleep(1)
-        r = get_signature_statuses(a, {})
+        oldest = remain[:256]
+        newest = remain[256:]
+        result = get_signature_statuses(oldest, {})
         match pxsol.config.current.commitment:
             case 'confirmed':
-                s = [e['confirmationStatus'] not in ['confirmed', 'finalized'] for e in r]
+                select = [e is None or e['confirmationStatus'] not in ['confirmed', 'finalized'] for e in result]
             case 'finalized':
-                s = [e['confirmationStatus'] not in ['finalized'] for e in r]
+                select = [e is None or e['confirmationStatus'] not in ['finalized'] for e in result]
             case _:
-                s = [e['confirmationStatus'] not in ['finalized'] for e in r]
-        a = list(itertools.compress(a, s))
-        if len(a) == 0:
+                select = [e is None or e['confirmationStatus'] not in ['finalized'] for e in result]
+        remain = list(itertools.compress(oldest, select)) + newest
+        if len(remain) == 0:
             break
-
-
-def wait(signature: str) -> None:
-    return hang([signature])
 
 
 def get_account_info(pubkey: str, conf: typing.Dict) -> typing.Dict:

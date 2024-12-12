@@ -35,7 +35,7 @@ if args.action == 'call':
     tx.message.instructions.append(pxsol.core.Instruction(1, [], bytearray()))
     tx.signatures.append(user.prikey.sign(tx.message.serialize()))
     txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
-    pxsol.rpc.wait(txid)
+    pxsol.rpc.wait([txid])
     r = pxsol.rpc.get_transaction(txid, {})
     for e in r['meta']['logMessages']:
         print(e)

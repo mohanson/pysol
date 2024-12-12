@@ -55,7 +55,7 @@ class Wallet:
         tx.signatures.append(self.prikey.sign(tx.message.serialize()))
         tx.signatures.append(program_buffer_prikey.sign(tx.message.serialize()))
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
-        pxsol.rpc.wait(txid)
+        pxsol.rpc.wait([txid])
         # Breaks up the program byte-code into ~1KB chunks and sends transactions to write each chunk with the write
         # buffer instruction.
         size = 1012
@@ -73,7 +73,7 @@ class Wallet:
             assert len(tx.serialize()) <= 1232
             txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
             hall.append(txid)
-        pxsol.rpc.hang(hall)
+        pxsol.rpc.wait(hall)
         return program_buffer_pubkey
 
     def program_deploy(self, program: bytearray) -> pxsol.core.PubKey:
@@ -105,7 +105,7 @@ class Wallet:
         tx.signatures.append(self.prikey.sign(tx.message.serialize()))
         tx.signatures.append(program_prikey.sign(tx.message.serialize()))
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
-        pxsol.rpc.wait(txid)
+        pxsol.rpc.wait([txid])
         return program_pubkey
 
     def program_update(self, program: bytearray, program_pubkey: pxsol.core.PubKey) -> None:
@@ -127,7 +127,7 @@ class Wallet:
         ))
         tx.signatures.append(self.prikey.sign(tx.message.serialize()))
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
-        pxsol.rpc.wait(txid)
+        pxsol.rpc.wait([txid])
 
     def transfer(self, pubkey: pxsol.core.PubKey, value: int) -> bytearray:
         # Transfers the specified lamports to the target. The function returns the first signature of the transaction,
