@@ -3,8 +3,8 @@ import base64
 import pathlib
 import pxsol
 
-# Publish a hello solana program, call it to show "Hello, Solana!". Then we update the program and call it again, and
-# finally it will be explicit "Hello, Update!".
+# Deploy a hello solana program, call it to show "Hello, Solana!". Then we update the program and call it again, it
+# will display another welcome message. Finally, we close the program to withdraw all solanas.
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--action', type=str, choices=['call', 'closed', 'deploy', 'update'])
@@ -38,14 +38,15 @@ if args.action == 'call':
 if args.action == 'closed':
     pubkey = pxsol.core.PubKey.base58_decode(args.addr)
     user.program_closed(pubkey)
+    print('Program', pubkey, 'closed')
 
 if args.action == 'deploy':
     data = bytearray(pathlib.Path('res/hello_solana_program.so').read_bytes())
     pubkey = user.program_deploy(data)
-    print('Program ID:', pubkey)
+    print('Program', pubkey, 'create')
 
 if args.action == 'update':
-    data = bytearray(pathlib.Path('res/hello_update_program.so').read_bytes())
+    data = bytearray(pathlib.Path('res/hello_solana_program.so.2').read_bytes())
     pubkey = pxsol.core.PubKey.base58_decode(args.addr)
     user.program_update(data, pubkey)
-    print('Program ID:', pubkey)
+    print('Program', pubkey, 'update')
