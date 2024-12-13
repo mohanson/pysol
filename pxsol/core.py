@@ -150,7 +150,9 @@ class ProgramLoaderUpgradeable:
 
     @classmethod
     def close(cls):
-        pass
+        r = bytearray()
+        r.extend(bytearray([0x05, 0x00, 0x00, 0x00]))
+        return r
 
     @classmethod
     def extend_program(cls):

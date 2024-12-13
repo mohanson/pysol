@@ -15,7 +15,6 @@ class Wallet:
     def __init__(self, prikey: pxsol.core.PriKey) -> None:
         self.prikey = prikey
         self.pubkey = prikey.pubkey()
-        self.addr = self.pubkey.base58()
 
     def __repr__(self) -> str:
         return json.dumps(self.json())
@@ -28,9 +27,23 @@ class Wallet:
 
     def balance(self) -> int:
         # Returns the lamport balance of the account.
-        return pxsol.rpc.get_balance(self.addr, {})
+        return pxsol.rpc.get_balance(self.pubkey.base58(), {})
 
-    def program_create_buffer(self, program: bytearray) -> pxsol.core.PubKey:
+    def program_buffer_closed(self, program_buffer_pubkey: pxsol.core.PubKey) -> None:
+        # Close a buffer account. This method is used to withdraw all lamports when the buffer account is no longer in
+        # use due to unexpected errors.
+        tx = pxsol.core.Transaction([], pxsol.core.Message(pxsol.core.MessageHeader(1, 0, 1), [], bytearray(), []))
+        tx.message.account_keys.append(self.pubkey)
+        tx.message.account_keys.append(program_buffer_pubkey)
+        tx.message.account_keys.append(pxsol.core.ProgramLoaderUpgradeable.pubkey)
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
+        tx.message.instructions.append(pxsol.core.Instruction(
+            2, [1, 0, 0], pxsol.core.ProgramLoaderUpgradeable.close()))
+        tx.signatures.append(self.prikey.sign(tx.message.serialize()))
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
+        pxsol.rpc.wait([txid])
+
+    def program_buffer_create(self, program: bytearray) -> pxsol.core.PubKey:
         # Writes a program into a buffer account. The buffer account is randomly generated, and its public key serves
         # as the function's return value.
         program_buffer_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
@@ -76,9 +89,24 @@ class Wallet:
         pxsol.rpc.wait(hall)
         return program_buffer_pubkey
 
+    def program_closed(self, program_pubkey: pxsol.core.PubKey) -> None:
+        # Close a program. The sol allocated to the on-chain program can be fully recovered by performing this action.
+        program_data_pubkey = pxsol.core.ProgramLoaderUpgradeable.pubkey.derive(program_pubkey.p)
+        tx = pxsol.core.Transaction([], pxsol.core.Message(pxsol.core.MessageHeader(1, 0, 1), [], bytearray(), []))
+        tx.message.account_keys.append(self.pubkey)
+        tx.message.account_keys.append(program_pubkey)
+        tx.message.account_keys.append(program_data_pubkey)
+        tx.message.account_keys.append(pxsol.core.ProgramLoaderUpgradeable.pubkey)
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
+        tx.message.instructions.append(pxsol.core.Instruction(
+            3, [2, 0, 0, 1], pxsol.core.ProgramLoaderUpgradeable.close()))
+        tx.signatures.append(self.prikey.sign(tx.message.serialize()))
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
+        pxsol.rpc.wait([txid])
+
     def program_deploy(self, program: bytearray) -> pxsol.core.PubKey:
         # Deploying a program on solana, returns the program's public key.
-        program_buffer_pubkey = self.program_create_buffer(program)
+        program_buffer_pubkey = self.program_buffer_create(program)
         program_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
         program_pubkey = program_prikey.pubkey()
         program_data_pubkey = pxsol.core.ProgramLoaderUpgradeable.pubkey.derive(program_pubkey.p)
@@ -110,7 +138,7 @@ class Wallet:
 
     def program_update(self, program: bytearray, program_pubkey: pxsol.core.PubKey) -> None:
         # Updating an existing solana program by new program data and the same program id.
-        program_buffer_pubkey = self.program_create_buffer(program)
+        program_buffer_pubkey = self.program_buffer_create(program)
         program_data_pubkey = pxsol.core.ProgramLoaderUpgradeable.pubkey.derive(program_pubkey.p)
         tx = pxsol.core.Transaction([], pxsol.core.Message(pxsol.core.MessageHeader(1, 0, 3), [], bytearray(), []))
         tx.message.account_keys.append(self.pubkey)

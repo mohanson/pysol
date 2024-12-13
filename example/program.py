@@ -7,7 +7,7 @@ import pxsol
 # finally it will be explicit "Hello, Update!".
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--action', type=str, choices=['call', 'deploy', 'update'])
+parser.add_argument('--action', type=str, choices=['call', 'closed', 'deploy', 'update'])
 parser.add_argument('--addr', type=str, help='addr')
 parser.add_argument('--net', type=str, choices=['develop', 'mainnet', 'testnet'], default='develop')
 parser.add_argument('--prikey', type=str, help='private key')
@@ -22,11 +22,6 @@ if args.net == 'testnet':
 
 user = pxsol.wallet.Wallet(pxsol.core.PriKey(bytearray(int(args.prikey, 0).to_bytes(32))))
 
-if args.action == 'deploy':
-    data = bytearray(pathlib.Path('res/hello_solana_program.so').read_bytes())
-    pubkey = user.program_deploy(data)
-    print('Program ID:', pubkey)
-
 if args.action == 'call':
     tx = pxsol.core.Transaction([], pxsol.core.Message(pxsol.core.MessageHeader(1, 0, 1), [], bytearray(), []))
     tx.message.account_keys.append(user.pubkey)
@@ -39,6 +34,15 @@ if args.action == 'call':
     r = pxsol.rpc.get_transaction(txid, {})
     for e in r['meta']['logMessages']:
         print(e)
+
+if args.action == 'closed':
+    pubkey = pxsol.core.PubKey.base58_decode(args.addr)
+    user.program_closed(pubkey)
+
+if args.action == 'deploy':
+    data = bytearray(pathlib.Path('res/hello_solana_program.so').read_bytes())
+    pubkey = user.program_deploy(data)
+    print('Program ID:', pubkey)
 
 if args.action == 'update':
     data = bytearray(pathlib.Path('res/hello_update_program.so').read_bytes())
