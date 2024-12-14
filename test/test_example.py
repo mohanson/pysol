@@ -2,7 +2,7 @@ import subprocess
 
 
 def call(c: str):
-    return subprocess.run(c, check=True, shell=True)
+    return subprocess.run(c, check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
 def test_addr():
@@ -14,7 +14,12 @@ def test_balance():
 
 
 def test_program():
-    call('python example/program.py --action deploy --prikey 0x1')
+    r = call('python example/program.py --action deploy --prikey 0x1')
+    program_pubkey = r.stdout.decode().rstrip().split()[1]
+    call(f'python example/program.py --prikey 0x1 --action call --addr {program_pubkey}')
+    call(f'python example/program.py --prikey 0x1 --action update --addr {program_pubkey}')
+    call(f'python example/program.py --prikey 0x1 --action call --addr {program_pubkey}')
+    call(f'python example/program.py --prikey 0x1 --action closed --addr {program_pubkey}')
 
 
 def test_transfer():

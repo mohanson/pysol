@@ -169,6 +169,7 @@ class Wallet:
         tx.signatures.append(self.prikey.sign(tx.message.serialize()))
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         assert pxsol.base58.decode(txid) == tx.signatures[0]
+        pxsol.rpc.wait([txid])
         return tx.signatures[0]
 
     def transfer_all(self, pubkey: pxsol.core.PubKey) -> bytearray:

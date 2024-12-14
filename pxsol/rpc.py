@@ -27,7 +27,7 @@ def wait(sigs: typing.List[str]) -> None:
         pxsol.log.debugln(f'pxsol: transaction wait remain={len(remain)}')
         if len(remain) == 0:
             break
-        time.sleep(0.25)
+        time.sleep(0.5)
         oldest = remain[:256]
         newest = remain[256:]
         result = get_signature_statuses(oldest, {})
