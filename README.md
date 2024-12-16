@@ -21,7 +21,12 @@ $ python -m pip install --editable .
 
 ## Usage
 
-By default, pxsol is configured on the develop. To switch networks, use `pxsol.config.current = pxsol.config.mainnet`.
+By default, pxsol is configured on the develop. To switch the network to the main network, use the following code:
+
+```py
+import pxsol
+pxsol.config.current = pxsol.config.mainnet
+```
 
 **example/addr.py**
 
