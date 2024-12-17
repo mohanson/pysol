@@ -10,6 +10,7 @@ import typing
 
 
 def call(method: str, params: typing.List) -> typing.Any:
+    # Send a json rpc request.
     r = requests.post(pxsol.config.current.url, json={
         'id': random.randint(0x00000000, 0xffffffff),
         'jsonrpc': '2.0',
@@ -22,6 +23,7 @@ def call(method: str, params: typing.List) -> typing.Any:
 
 
 def wait(sigs: typing.List[str]) -> None:
+    # Wait for all signatures in the parameter to be confirmed. There is no limit on the number of signatures.
     remain = sigs.copy()
     for _ in itertools.repeat(0):
         pxsol.log.debugln(f'pxsol: transaction wait remain={len(remain)}')
@@ -39,6 +41,15 @@ def wait(sigs: typing.List[str]) -> None:
             case _:
                 select = [e is None or e['confirmationStatus'] not in ['finalized'] for e in result]
         remain = list(itertools.compress(oldest, select)) + newest
+
+
+def step() -> None:
+    # Waiting for at least one new block.
+    data = get_block_height({})
+    for _ in itertools.repeat(0):
+        time.sleep(0.5)
+        if get_block_height({}) != data:
+            break
 
 
 def get_account_info(pubkey: str, conf: typing.Dict) -> typing.Dict:

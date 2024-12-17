@@ -3,10 +3,10 @@ import random
 
 
 def test_addr():
-    prikey = pxsol.core.PriKey(bytearray(int(1).to_bytes(32)))
+    prikey = pxsol.core.PriKey.int_decode(1)
     pubkey = prikey.pubkey()
     assert pubkey.base58() == '6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt'
-    prikey = pxsol.core.PriKey(bytearray(int(2).to_bytes(32)))
+    prikey = pxsol.core.PriKey.int_decode(2)
     pubkey = prikey.pubkey()
     assert pubkey.base58() == '8pM1DN3RiT8vbom5u1sNryaNT1nyL8CTTW3b5PwWXRBH'
 
@@ -37,6 +37,18 @@ def test_compact_u16_random():
         assert pxsol.core.compact_u16_decode(pxsol.core.compact_u16_encode(n)) == n
 
 
+def test_prikey():
+    prikey = pxsol.core.PriKey(bytearray(int(1).to_bytes(32)))
+    assert prikey.base58() == '11111111111111111111111111111112'
+    assert prikey == pxsol.core.PriKey.base58_decode(prikey.base58())
+    assert prikey.hex() == '0000000000000000000000000000000000000000000000000000000000000001'
+    assert prikey == pxsol.core.PriKey.hex_decode(prikey.hex())
+    assert prikey.int() == 1
+    assert prikey == pxsol.core.PriKey.int_decode(prikey.int())
+    assert prikey.wif() == '1111111111111111111111111111111PPm2a2NNZH2EFJ5UkEjkH9Fcxn8cvjTmZDKQQisyLDmA'
+    assert prikey == pxsol.core.PriKey.wif_decode(prikey.wif())
+
+
 def test_pubkey_derive():
     pubkey = pxsol.core.PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
     seed = bytearray(int(0).to_bytes(32))
@@ -65,10 +77,3 @@ def test_transaction():
     tx = pxsol.core.Transaction.serialize_decode(data)
     assert tx.serialize() == data
     assert tx.json() == pxsol.core.Transaction.json_decode(tx.json()).json()
-
-
-def test_wif():
-    prikey = pxsol.core.PriKey(bytearray(int(1).to_bytes(32)))
-    wif = prikey.wif()
-    assert wif == '1111111111111111111111111111111PPm2a2NNZH2EFJ5UkEjkH9Fcxn8cvjTmZDKQQisyLDmA'
-    assert pxsol.core.PriKey.wif_decode(wif) == prikey

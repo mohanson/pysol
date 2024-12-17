@@ -2,12 +2,12 @@ import pxsol
 
 
 def test_get_account_info():
-    addr = pxsol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58()
+    addr = pxsol.core.PriKey.int_decode(1).pubkey().base58()
     pxsol.rpc.get_account_info(addr, {})
 
 
 def test_get_balance():
-    addr = pxsol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58()
+    addr = pxsol.core.PriKey.int_decode(1).pubkey().base58()
     pxsol.rpc.get_balance(addr, {})
 
 
@@ -125,14 +125,14 @@ def test_get_minimum_balance_for_rent_exemption():
 
 def test_get_multiple_accounts():
     r = pxsol.rpc.get_multiple_accounts([
-        pxsol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58(),
-        pxsol.core.PriKey(bytearray(int(2).to_bytes(32))).pubkey().base58(),
+        pxsol.core.PriKey.int_decode(1).pubkey().base58(),
+        pxsol.core.PriKey.int_decode(2).pubkey().base58(),
     ], {})
     assert len(r) == 2
 
 
 def test_get_program_accounts():
-    addr = pxsol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58()
+    addr = pxsol.core.PriKey.int_decode(1).pubkey().base58()
     pxsol.rpc.get_program_accounts(addr, {})
 
 
@@ -149,7 +149,7 @@ def test_get_signature_statuses():
 
 
 def test_get_signatures_for_address():
-    addr = pxsol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58()
+    addr = pxsol.core.PriKey.int_decode(1).pubkey().base58()
     pxsol.rpc.get_signatures_for_address(addr, {})
 
 
@@ -224,7 +224,7 @@ def test_minimum_ledger_slot():
 
 
 def test_request_airdrop():
-    addr = pxsol.core.PriKey(bytearray(int(1).to_bytes(32))).pubkey().base58()
+    addr = pxsol.core.PriKey.int_decode(1).pubkey().base58()
     pxsol.rpc.request_airdrop(addr, 1, {})
 
 

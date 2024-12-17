@@ -22,33 +22,48 @@ class PriKey:
         return self.p == other.p
 
     def base58(self) -> str:
+        # Convert the private key to base58 representation.
         return pxsol.base58.encode(self.p)
 
     @classmethod
     def base58_decode(cls, data: str) -> typing.Self:
+        # Convert the base58 representation to private key.
         return PriKey(pxsol.base58.decode(data))
 
     def hex(self) -> str:
+        # Convert the private key to hex representation.
         return self.p.hex()
 
     @classmethod
     def hex_decode(cls, data: str) -> typing.Self:
+        # Convert the hex representation to private key.
         return PriKey(bytearray.fromhex(data))
 
+    def int(self) -> int:
+        # Convert the private key to u256 number, in big endian.
+        return int.from_bytes(self.p)
+
+    @classmethod
+    def int_decode(cls, data: int) -> typing.Self:
+        # Convert the u256 number to private key, in big endian.
+        return PriKey(bytearray(data.to_bytes(32)))
+
     def pubkey(self):
-        # Get the public key.
+        # Get the eddsa public key corresponding to the private key.
         return PubKey(pxsol.eddsa.pubkey(self.p))
 
     def sign(self, data: bytearray) -> bytearray:
-        # Use this private key to sign a message of arbitrary length. The resulting signature is deterministic.
+        # Sign a message of arbitrary length. Unlike secp256k1, the resulting signature is deterministic.
         return pxsol.eddsa.sign(self.p, data)
 
     def wif(self) -> str:
+        # Convert the private key to wallet import format. This is the format supported by most third-party wallets.
         pubkey = self.pubkey()
         return pxsol.base58.encode(self.p + pubkey.p)
 
     @classmethod
     def wif_decode(cls, data: str) -> typing.Self:
+        # Convert the wallet import format to private key. This is the format supported by most third-party wallets.
         pripub = pxsol.base58.decode(data)
         prikey = PriKey(pripub[:32])
         pubkey = PubKey(pripub[32:])
@@ -71,15 +86,17 @@ class PubKey:
         return self.p == other.p
 
     def base58(self) -> str:
+        # Convert the public key to base58 representation.
         return pxsol.base58.encode(self.p)
 
     @classmethod
     def base58_decode(cls, data: str) -> typing.Self:
+        # Convert the base58 representation to public key.
         return PubKey(pxsol.base58.decode(data))
 
     def derive(self, seed: bytearray) -> typing.Self:
-        # Program Derived Address (PDA). PDAs are addresses derived deterministically using a combination of user-defined
-        # seeds, a bump seed, and a program's ID.
+        # Program Derived Address (PDA). PDAs are addresses derived deterministically using a combination of
+        # user-defined seeds, a bump seed, and a program's ID.
         # See: https://solana.com/docs/core/pda
         data = bytearray()
         data.extend(seed)
@@ -95,11 +112,22 @@ class PubKey:
         raise Exception
 
     def hex(self) -> str:
+        # Convert the public key to hex representation.
         return self.p.hex()
 
     @classmethod
     def hex_decode(cls, data: str) -> typing.Self:
+        # Convert the hex representation to public key.
         return PubKey(bytearray.fromhex(data))
+
+    def int(self) -> int:
+        # Convert the public key to u256 number, in big endian.
+        return int.from_bytes(self.p)
+
+    @classmethod
+    def int_decode(cls, data: int) -> typing.Self:
+        # Convert the u256 number to public key, in big endian.
+        return PubKey(bytearray(data.to_bytes(32)))
 
 
 class ProgramClock:

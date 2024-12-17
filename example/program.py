@@ -20,7 +20,7 @@ if args.net == 'mainnet':
 if args.net == 'testnet':
     pxsol.config.current = pxsol.config.testnet
 
-user = pxsol.wallet.Wallet(pxsol.core.PriKey(bytearray(int(args.prikey, 0).to_bytes(32))))
+user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(int(args.prikey, 0)))
 
 if args.action == 'call':
     tx = pxsol.core.Transaction([], pxsol.core.Message(pxsol.core.MessageHeader(1, 0, 1), [], bytearray(), []))
