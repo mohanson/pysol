@@ -118,8 +118,8 @@ class Wallet:
         tx.message.account_keys.append(program_buffer_pubkey)
         tx.message.account_keys.append(pxsol.core.ProgramSystem.pubkey)
         tx.message.account_keys.append(pxsol.core.ProgramLoaderUpgradeable.pubkey)
-        tx.message.account_keys.append(pxsol.core.ProgramClock.pubKey)
-        tx.message.account_keys.append(pxsol.core.ProgramRent.pubkey)
+        tx.message.account_keys.append(pxsol.core.ProgramSysvarClock.pubKey)
+        tx.message.account_keys.append(pxsol.core.ProgramSysvarRent.pubkey)
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.message.instructions.append(pxsol.core.Instruction(4, [0, 1], pxsol.core.ProgramSystem.create(
             pxsol.rpc.get_minimum_balance_for_rent_exemption(pxsol.core.ProgramLoaderUpgradeable.size_program, {}),
@@ -146,8 +146,8 @@ class Wallet:
         tx.message.account_keys.append(program_pubkey)
         tx.message.account_keys.append(program_buffer_pubkey)
         tx.message.account_keys.append(pxsol.core.ProgramLoaderUpgradeable.pubkey)
-        tx.message.account_keys.append(pxsol.core.ProgramClock.pubKey)
-        tx.message.account_keys.append(pxsol.core.ProgramRent.pubkey)
+        tx.message.account_keys.append(pxsol.core.ProgramSysvarClock.pubKey)
+        tx.message.account_keys.append(pxsol.core.ProgramSysvarRent.pubkey)
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.message.instructions.append(pxsol.core.Instruction(
             4, [1, 2, 3, 0, 6, 5, 0],

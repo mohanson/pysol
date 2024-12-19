@@ -130,11 +130,6 @@ class PubKey:
         return PubKey(bytearray(data.to_bytes(32)))
 
 
-class ProgramClock:
-
-    pubKey = PubKey.base58_decode('SysvarC1ock11111111111111111111111111111111')
-
-
 class ProgramLoaderUpgradeable:
 
     pubkey = PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
@@ -189,11 +184,6 @@ class ProgramLoaderUpgradeable:
     @classmethod
     def set_authority_checked(cls):
         pass
-
-
-class ProgramRent:
-
-    pubkey = PubKey.base58_decode('SysvarRent111111111111111111111111111111111')
 
 
 class ProgramSystem:
@@ -259,6 +249,16 @@ class ProgramSystem:
     @classmethod
     def upgrade_nonce_account(cls):
         pass
+
+
+class ProgramSysvarClock:
+
+    pubKey = PubKey.base58_decode('SysvarC1ock11111111111111111111111111111111')
+
+
+class ProgramSysvarRent:
+
+    pubkey = PubKey.base58_decode('SysvarRent111111111111111111111111111111111')
 
 
 def compact_u16_encode(n: int) -> bytearray:
