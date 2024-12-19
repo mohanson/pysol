@@ -19,5 +19,5 @@ if args.net == 'testnet':
 
 user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(int(args.prikey, 0)))
 hole = pxsol.core.PubKey.base58_decode(args.to)
-txid = user.transfer(hole, 0.05 * pxsol.denomination.sol)
+txid = user.transfer(hole, int(args.value * pxsol.denomination.sol))
 print(pxsol.base58.encode(txid))
