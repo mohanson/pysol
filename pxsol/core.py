@@ -141,14 +141,12 @@ class ProgramLoaderUpgradeable:
 
     @classmethod
     def initialize_buffer(cls) -> bytearray:
-        r = bytearray()
-        r.extend(bytearray([0x00, 0x00, 0x00, 0x00]))
+        r = bytearray([0x00, 0x00, 0x00, 0x00])
         return r
 
     @classmethod
     def write(cls, offset: int, data: bytearray) -> bytearray:
-        r = bytearray()
-        r.extend(bytearray([0x01, 0x00, 0x00, 0x00]))
+        r = bytearray([0x01, 0x00, 0x00, 0x00])
         r.extend(bytearray(offset.to_bytes(4, 'little')))
         r.extend(bytearray(len(data).to_bytes(8, 'little')))
         r.extend(data)
@@ -156,34 +154,35 @@ class ProgramLoaderUpgradeable:
 
     @classmethod
     def deploy_with_max_data_len(cls, size: int) -> bytearray:
-        r = bytearray()
-        r.extend(bytearray([0x02, 0x00, 0x00, 0x00]))
+        r = bytearray([0x02, 0x00, 0x00, 0x00])
         r.extend(bytearray(size.to_bytes(8, 'little')))
         return r
 
     @classmethod
     def upgrade(cls) -> bytearray:
-        r = bytearray()
-        r.extend(bytearray([0x03, 0x00, 0x00, 0x00]))
+        r = bytearray([0x03, 0x00, 0x00, 0x00])
         return r
 
     @classmethod
-    def set_authority(cls):
-        pass
-
-    @classmethod
-    def close(cls):
-        r = bytearray()
-        r.extend(bytearray([0x05, 0x00, 0x00, 0x00]))
+    def set_authority(cls) -> bytearray:
+        r = bytearray([0x04, 0x00, 0x00, 0x00])
         return r
 
     @classmethod
-    def extend_program(cls):
-        pass
+    def close(cls) -> bytearray:
+        r = bytearray([0x05, 0x00, 0x00, 0x00])
+        return r
 
     @classmethod
-    def set_authority_checked(cls):
-        pass
+    def extend_program(cls, addition: int) -> bytearray:
+        r = bytearray([0x06, 0x00, 0x00, 0x00])
+        r.extend(bytearray(addition.to_bytes(4, 'little')))
+        return r
+
+    @classmethod
+    def set_authority_checked(cls) -> bytearray:
+        r = bytearray([0x07, 0x00, 0x00, 0x00])
+        return r
 
 
 class ProgramSystem:
@@ -191,64 +190,24 @@ class ProgramSystem:
     pubkey = PubKey(bytearray(32))
 
     @classmethod
-    def create(cls, value: int, space: int, program_id: PubKey) -> bytearray:
-        r = bytearray()
-        r.extend(bytearray([0x00, 0x00, 0x00, 0x00]))
+    def create_account(cls, value: int, space: int, owner: PubKey) -> bytearray:
+        r = bytearray([0x00, 0x00, 0x00, 0x00])
         r.extend(bytearray(int(value).to_bytes(8, 'little')))
         r.extend(bytearray(int(space).to_bytes(8, 'little')))
-        r.extend(program_id.p)
+        r.extend(owner.p)
         return r
 
     @classmethod
-    def assign(cls):
-        pass
+    def assign(cls, owner: PubKey) -> bytearray:
+        r = bytearray([0x01, 0x00, 0x00, 0x00])
+        r.extend(owner.p)
+        return r
 
     @classmethod
     def transfer(cls, value: int) -> bytearray:
-        r = bytearray()
-        r.extend(bytearray([0x02, 0x00, 0x00, 0x00]))
-        r.extend(bytearray(int(value).to_bytes(8, 'little')))
+        r = bytearray([0x02, 0x00, 0x00, 0x00])
+        r.extend(bytearray(value.to_bytes(8, 'little')))
         return r
-
-    @classmethod
-    def create_with_seed(cls):
-        pass
-
-    @classmethod
-    def advance_nonce_account(cls):
-        pass
-
-    @classmethod
-    def withdraw_nonce_account(cls):
-        pass
-
-    @classmethod
-    def initialize_nonce_account(cls):
-        pass
-
-    @classmethod
-    def authorize_nonce_account(cls):
-        pass
-
-    @classmethod
-    def allocate(cls):
-        pass
-
-    @classmethod
-    def allocate_with_seed(cls):
-        pass
-
-    @classmethod
-    def assign_with_seed(cls):
-        pass
-
-    @classmethod
-    def transfer_with_seed(cls):
-        pass
-
-    @classmethod
-    def upgrade_nonce_account(cls):
-        pass
 
 
 class ProgramSysvarClock:
