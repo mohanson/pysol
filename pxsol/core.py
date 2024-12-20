@@ -133,7 +133,7 @@ class PubKey:
 class ProgramLoaderUpgradeable:
     # The bpf loader program is the program that owns all executable accounts on solana. When you deploy a program, the
     # owner of the program account is set to the the bpf loader program.
-    # See: https://github.com/solana-labs/solana/blob/master/sdk/program/src/loader_upgradeable_instruction.rs
+    # See: https://github.com/anza-xyz/agave/blob/master/sdk/program/src/loader_upgradeable_instruction.rs
 
     pubkey = PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
 
@@ -189,6 +189,8 @@ class ProgramLoaderUpgradeable:
 
 
 class ProgramSystem:
+    # See: https://github.com/anza-xyz/agave/blob/master/sdk/program/src/system_instruction.rs
+    # See: https://github.com/solana-program/system/blob/main/interface/src/instruction.rs
 
     pubkey = PubKey(bytearray(32))
 
