@@ -189,6 +189,7 @@ class ProgramLoaderUpgradeable:
 
 
 class ProgramSystem:
+    # The system program is responsible for the creation of accounts.
     # See: https://github.com/anza-xyz/agave/blob/master/sdk/program/src/system_instruction.rs
     # See: https://github.com/solana-program/system/blob/main/interface/src/instruction.rs
 
