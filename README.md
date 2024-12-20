@@ -108,7 +108,7 @@ $ python example/wif.py --prikey 0x1
 ## Test
 
 ```sh
-$ wget https://github.com/solana-labs/solana/releases/download/v1.18.26/solana-release-x86_64-unknown-linux-gnu.tar.bz2
+$ wget https://github.com/anza-xyz/agave/releases/download/v2.0.20/solana-release-x86_64-unknown-linux-gnu.tar.bz2
 $ tar -xvf solana-release-x86_64-unknown-linux-gnu.tar.bz2
 $ cd solana-release
 
