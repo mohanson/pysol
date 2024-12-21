@@ -136,6 +136,47 @@ class PubKey:
         return PubKey(bytearray(data.to_bytes(32)))
 
 
+class AccountMeta:
+    # Describes a single account with it's mode. The bit 0 distinguishes whether the account is writable; the bit 1
+    # distinguishes whether the account needs to be signed. Details are as follows:
+    #   0: readonly
+    #   1: writable
+    #   2: readonly + signer
+    #   3: writable + signer
+
+    def __init__(self, pubkey: PubKey, mode: int) -> None:
+        self.pubkey = pubkey
+        self.mode = mode
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def json(self) -> typing.Dict:
+        return {
+            'pubkey': self.pubkey.base58(),
+            'mode': ['-r', '-w', 'sr', 'sw'][self.mode],
+        }
+
+
+class Requisition:
+    # A directive for a single invocation of a solana program.
+
+    def __init__(self, program: PubKey, account: typing.List[AccountMeta], data: bytearray) -> None:
+        self.program = program
+        self.account = account
+        self.data = data
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def json(self) -> typing.Dict:
+        return {
+            'program': self.program.base58(),
+            'account': [e.json() for e in self.account],
+            'data': pxsol.base58.encode(self.data),
+        }
+
+
 class ProgramLoaderUpgradeable:
     # The bpf loader program is the program that owns all executable accounts on solana. When you deploy a program, the
     # owner of the program account is set to the the bpf loader program.
@@ -424,6 +465,42 @@ class Transaction:
             'message': self.message.json()
         }
 
+    def requisition(self) -> typing.List[Requisition]:
+        # Convert the transaction to requisitions.
+        r = []
+        for i in self.message.instructions:
+            program = (self.message.account_keys[i.program])
+            account = [self.message.account_keys[a] for a in i.account]
+            r.append(Requisition(program, AccountMeta(account, 0), i.data))
+        return r
+
+    @classmethod
+    def requisition_decode(cls, pubkey: PubKey, data: typing.List[Requisition]) -> typing.Self:
+        # Convert the requisitions to transaction.
+        account_flat: typing.List[AccountMeta] = [AccountMeta(pubkey, 3)]
+        for r in data:
+            account_flat.append(AccountMeta(r.program, 0))
+            account_flat.extend(r.account)
+        account_list: typing.List[AccountMeta] = []
+        account_dict: typing.Dict[PubKey, int] = {}
+        for a in account_flat:
+            if a.pubkey not in account_dict:
+                account_list.append(a)
+                account_dict[a.pubkey] = len(account_list) - 1
+                continue
+            account_list[account_dict[a.pubkey]].mode |= a.mode
+        account_list.sort(key=lambda x: x.mode, reverse=True)
+        tx = pxsol.core.Transaction([], pxsol.core.Message(pxsol.core.MessageHeader(0, 0, 0), [], bytearray(), []))
+        tx.message.account_keys.extend([e.pubkey for e in account_list])
+        tx.message.header.required_signatures = len([k for k in account_list if k.mode >= 2])
+        tx.message.header.readonly_signatures = len([k for k in account_list if k.mode == 2])
+        tx.message.header.readonly = len([k for k in account_list if k.mode == 0])
+        for r in data:
+            program = tx.message.account_keys.index(r.program)
+            account = [tx.message.account_keys.index(a.pubkey) for a in r.account]
+            tx.message.instructions.append(Instruction(program, account, r.data))
+        return tx
+
     def serialize(self) -> bytearray:
         r = bytearray()
         r.extend(compact_u16_encode(len(self.signatures)))
@@ -442,3 +519,10 @@ class Transaction:
         for _ in range(compact_u16_decode_reader(reader)):
             s.append(bytearray(reader.read(64)))
         return Transaction(s, Message.serialize_decode_reader(reader))
+
+    def sign(self, prikey: typing.List[PriKey]) -> None:
+        # Sign the transaction using the given private keys.
+        assert self.message.header.required_signatures == len(prikey)
+        m = self.message.serialize()
+        for k in prikey:
+            self.signatures.append(k.sign(m))
