@@ -519,3 +519,10 @@ class Transaction:
         for _ in range(compact_u16_decode_reader(reader)):
             s.append(bytearray(reader.read(64)))
         return Transaction(s, Message.serialize_decode_reader(reader))
+
+    def sign(self, prikey: typing.List[PriKey]) -> None:
+        # Sign the transaction using the given private keys.
+        assert self.message.header.required_signatures == len(prikey)
+        m = self.message.serialize()
+        for k in prikey:
+            self.signatures.append(k.sign(m))
