@@ -119,7 +119,7 @@ class Wallet:
             pxsol.core.ProgramLoaderUpgradeable.pubkey,
         )
         r1 = pxsol.core.Requisition(pxsol.core.ProgramLoaderUpgradeable.pubkey, [], bytearray())
-        r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
+        r1.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
         r1.account.append(pxsol.core.AccountMeta(program_data_pubkey, 1))
         r1.account.append(pxsol.core.AccountMeta(program_pubkey, 1))
         r1.account.append(pxsol.core.AccountMeta(program_buffer_pubkey, 1))

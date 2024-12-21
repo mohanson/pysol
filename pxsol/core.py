@@ -191,11 +191,17 @@ class ProgramLoaderUpgradeable:
 
     @classmethod
     def initialize_buffer(cls) -> bytearray:
+        # Initialize a Buffer account. Account references:
+        # 0. -w source account to initialize.
+        # 1. -r buffer authority. optional, if omitted then the buffer will be immutable.
         r = bytearray([0x00, 0x00, 0x00, 0x00])
         return r
 
     @classmethod
     def write(cls, offset: int, data: bytearray) -> bytearray:
+        # Write program data into a buffer account. Account references:
+        # 0. -w buffer account to write program data to.
+        # 1. sr buffer authority.
         r = bytearray([0x01, 0x00, 0x00, 0x00])
         r.extend(bytearray(offset.to_bytes(4, 'little')))
         r.extend(bytearray(len(data).to_bytes(8, 'little')))
@@ -204,33 +210,70 @@ class ProgramLoaderUpgradeable:
 
     @classmethod
     def deploy_with_max_data_len(cls, size: int) -> bytearray:
+        # Deploy an executable program. Account references:
+        # 0. sw the payer account that will pay to create the program data account.
+        # 1. -w the uninitialized program data account.
+        # 2. -w The uninitialized program account.
+        # 3. -w The buffer account where the program data has been written.
+        # 4. -r rent sysvar.
+        # 5. -r clock sysvar.
+        # 6. -r system program.
+        # 7. sr the program's authority.
         r = bytearray([0x02, 0x00, 0x00, 0x00])
         r.extend(bytearray(size.to_bytes(8, 'little')))
         return r
 
     @classmethod
     def upgrade(cls) -> bytearray:
+        # Upgrade a program. Account references:
+        # 0. -w the program data account.
+        # 1. -w the program account.
+        # 2. -w the buffer account where the program data has been written.
+        # 3. -w the spill account.
+        # 4. -r rent sysvar.
+        # 5. -r clock sysvar.
+        # 6. sr the program's authority.
         r = bytearray([0x03, 0x00, 0x00, 0x00])
         return r
 
     @classmethod
     def set_authority(cls) -> bytearray:
+        # Set a new authority that is allowed to write the buffer or upgrade the program. Account references:
+        # 0. -w the buffer or program data account to change the authority of.
+        # 1. sr the current authority.
+        # 2. -r the new authority, optional, if omitted then the program will not be upgradeable.
         r = bytearray([0x04, 0x00, 0x00, 0x00])
         return r
 
     @classmethod
     def close(cls) -> bytearray:
+        # Closes an account owned by the upgradeable loader of all lamports and withdraws all the lamports.
+        # 0. -w the account to close, if closing a program must be the program data account.
+        # 1. -w the account to deposit the closed account's lamports.
+        # 2. sr the account's authority, optional, required for initialized accounts.
+        # 3. -w The associated program account if the account to close is a program data account.
         r = bytearray([0x05, 0x00, 0x00, 0x00])
         return r
 
     @classmethod
     def extend_program(cls, addition: int) -> bytearray:
+        # Extend a program's program data account by the specified number of bytes. Only upgradeable program's can be
+        # extended. Account references:
+        # 0. -w the program data account.
+        # 1. -w the program data account's associated program account.
+        # 2. -r system program, optional, used to transfer lamports from the payer to the program data account.
+        # 3. sw The payer account, optional, that will pay necessary rent exemption costs for the increased storage.
         r = bytearray([0x06, 0x00, 0x00, 0x00])
         r.extend(bytearray(addition.to_bytes(4, 'little')))
         return r
 
     @classmethod
     def set_authority_checked(cls) -> bytearray:
+        # Set a new authority that is allowed to write the buffer or upgrade the program. This instruction differs from
+        # set_authority in that the new authority is a required signer. Account references:
+        # 0. -w the buffer or program data account to change the authority of.
+        # 1. sr the current authority.
+        # 2. sr the new authority, optional, if omitted then the program will not be upgradeable.
         r = bytearray([0x07, 0x00, 0x00, 0x00])
         return r
 
@@ -244,6 +287,9 @@ class ProgramSystem:
 
     @classmethod
     def create_account(cls, value: int, space: int, owner: PubKey) -> bytearray:
+        # Create a new account. Account references:
+        # 0. sw funding account.
+        # 1. sw new account.
         r = bytearray([0x00, 0x00, 0x00, 0x00])
         r.extend(bytearray(int(value).to_bytes(8, 'little')))
         r.extend(bytearray(int(space).to_bytes(8, 'little')))
@@ -252,23 +298,32 @@ class ProgramSystem:
 
     @classmethod
     def assign(cls, owner: PubKey) -> bytearray:
+        # Assign account to a program. Account references:
+        # 0. sw assigned account public key.
         r = bytearray([0x01, 0x00, 0x00, 0x00])
         r.extend(owner.p)
         return r
 
     @classmethod
     def transfer(cls, value: int) -> bytearray:
+        # Transfer lamports. Account references:
+        # 0. sw funding account.
+        # 1. -w recipient account.
         r = bytearray([0x02, 0x00, 0x00, 0x00])
         r.extend(bytearray(value.to_bytes(8, 'little')))
         return r
 
 
 class ProgramSysvarClock:
+    # The Clock sysvar contains data on cluster time, including the current slot, epoch, and estimated wall-clock unix
+    # timestamp. It is updated every slot.
 
     pubKey = PubKey.base58_decode('SysvarC1ock11111111111111111111111111111111')
 
 
 class ProgramSysvarRent:
+    # The rent sysvar contains the rental rate. Currently, the rate is static and set in genesis. The rent burn
+    # percentage is modified by manual feature activation.
 
     pubkey = PubKey.base58_decode('SysvarRent111111111111111111111111111111111')
 
