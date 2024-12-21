@@ -76,4 +76,3 @@ def test_transaction():
     ])
     tx = pxsol.core.Transaction.serialize_decode(data)
     assert tx.serialize() == data
-    assert tx.json() == pxsol.core.Transaction.json_decode(tx.json()).json()

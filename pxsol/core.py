@@ -15,6 +15,9 @@ class PriKey:
         assert len(p) == 32
         self.p = p
 
+    def __hash__(self) -> int:
+        return self.int()
+
     def __repr__(self) -> str:
         return self.base58()
 
@@ -78,6 +81,9 @@ class PubKey:
     def __init__(self, p: bytearray) -> None:
         assert len(p) == 32
         self.p = p
+
+    def __hash__(self) -> int:
+        return self.int()
 
     def __repr__(self) -> str:
         return self.base58()
@@ -269,12 +275,12 @@ def compact_u16_decode_reader(reader: typing.BinaryIO) -> int:
 class Instruction:
     # A compact encoding of an instruction.
 
-    def __init__(self, program_id_index: int, accounts: typing.List[int], data: bytearray) -> None:
+    def __init__(self, program: int, account: typing.List[int], data: bytearray) -> None:
         # Identifies an on-chain program that will process the instruction. This is represented as an u8 index pointing
         # to an account address within the account addresses array.
-        self.program_id_index = program_id_index
+        self.program = program
         # Array of u8 indexes pointing to the account addresses array for each account required by the instruction.
-        self.accounts = accounts
+        self.account = account
         # A u8 byte array specific to the program invoked. This data specifies the instruction to invoke on the program
         # along with any additional data that the instruction requires (such as function arguments).
         self.data = data
@@ -284,20 +290,16 @@ class Instruction:
 
     def json(self) -> typing.Dict:
         return {
-            'programIdIndex': self.program_id_index,
-            'accounts': self.accounts,
+            'program': self.program,
+            'account': self.account,
             'data': pxsol.base58.encode(self.data)
         }
 
-    @classmethod
-    def json_decode(cls, data: typing.Dict) -> typing.Self:
-        return Instruction(data['programIdIndex'], data['accounts'], pxsol.base58.decode(data['data']))
-
     def serialize(self) -> bytearray:
         r = bytearray()
-        r.append(self.program_id_index)
-        r.extend(compact_u16_encode(len(self.accounts)))
-        for e in self.accounts:
+        r.append(self.program)
+        r.extend(compact_u16_encode(len(self.account)))
+        for e in self.account:
             r.append(e)
         r.extend(compact_u16_encode(len(self.data)))
         r.extend(self.data)
@@ -310,9 +312,9 @@ class Instruction:
     @classmethod
     def serialize_decode_reader(cls, reader: io.BytesIO) -> typing.Self:
         i = Instruction(0, [], bytearray())
-        i.program_id_index = int(reader.read(1)[0])
+        i.program = int(reader.read(1)[0])
         for _ in range(compact_u16_decode_reader(reader)):
-            i.accounts.append(int(reader.read(1)[0]))
+            i.account.append(int(reader.read(1)[0]))
         i.data = bytearray(reader.read(compact_u16_decode_reader(reader)))
         return i
 
@@ -326,38 +328,22 @@ class MessageHeader:
 
     def __init__(
         self,
-        num_required_signatures: int,
-        num_readonly_signed_accounts: int,
-        num_readonly_unsigned_accounts: int
+        required_signatures: int,
+        readonly_signatures: int,
+        readonly: int
     ) -> None:
-        self.num_required_signatures = num_required_signatures
-        self.num_readonly_signed_accounts = num_readonly_signed_accounts
-        self.num_readonly_unsigned_accounts = num_readonly_unsigned_accounts
+        self.required_signatures = required_signatures
+        self.readonly_signatures = readonly_signatures
+        self.readonly = readonly
 
     def __repr__(self) -> str:
         return json.dumps(self.json())
 
-    def json(self) -> typing.Dict:
-        return {
-            'numRequiredSignatures': self.num_required_signatures,
-            'numReadonlySignedAccounts': self.num_readonly_signed_accounts,
-            'numReadonlyUnsignedAccounts': self.num_readonly_unsigned_accounts,
-        }
-
-    @classmethod
-    def json_decode(cls, data: str) -> typing.Self:
-        return MessageHeader(
-            data['numRequiredSignatures'],
-            data['numReadonlySignedAccounts'],
-            data['numReadonlyUnsignedAccounts'],
-        )
+    def json(self) -> typing.List:
+        return [self.required_signatures, self.readonly_signatures, self.readonly]
 
     def serialize(self) -> bytearray:
-        return bytearray([
-            self.num_required_signatures,
-            self.num_readonly_signed_accounts,
-            self.num_readonly_unsigned_accounts,
-        ])
+        return bytearray([self.required_signatures, self.readonly_signatures, self.readonly])
 
     @classmethod
     def serialize_decode(cls, data: bytearray) -> typing.Self:
@@ -390,19 +376,10 @@ class Message:
     def json(self) -> typing.Dict:
         return {
             'header': self.header.json(),
-            'accountKeys': [e.base58() for e in self.account_keys],
-            'recentBlockhash': pxsol.base58.encode(self.recent_blockhash),
+            'account_keys': [e.base58() for e in self.account_keys],
+            'recent_blockhash': pxsol.base58.encode(self.recent_blockhash),
             'instructions': [e.json() for e in self.instructions],
         }
-
-    @classmethod
-    def json_decode(cls, data: str) -> typing.Self:
-        return Message(
-            MessageHeader.json_decode(data['header']),
-            [PubKey.base58_decode(e) for e in data['accountKeys']],
-            pxsol.base58.decode(data['recentBlockhash']),
-            [Instruction.json_decode(e) for e in data['instructions']]
-        )
 
     def serialize(self) -> bytearray:
         r = bytearray()
@@ -446,10 +423,6 @@ class Transaction:
             'signatures': [pxsol.base58.encode(e) for e in self.signatures],
             'message': self.message.json()
         }
-
-    @classmethod
-    def json_decode(cls, data: typing.Dict) -> typing.Self:
-        return Transaction([pxsol.base58.decode(e) for e in data['signatures']], Message.json_decode(data['message']))
 
     def serialize(self) -> bytearray:
         r = bytearray()
